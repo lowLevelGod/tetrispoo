@@ -65,17 +65,6 @@ public:
        int getWidth() { return width; }
        int getHeight() { return height; }
        const std::vector<std::pair<int, int>> &getSkirt() { return skirt; }
-       void drawPiece(const int &offset, sf::RenderWindow &window)
-       {
-              const int blocksize = 20;
-              for (auto elem : body)
-              {
-                     sf::RectangleShape rectangle(sf::Vector2f(blocksize, blocksize));
-                     rectangle.setFillColor(sf::Color::Green);
-                     rectangle.setPosition(sf::Vector2f(offset + elem.first * blocksize, offset + elem.second * blocksize));
-                     window.draw(rectangle);
-              }
-       }
        friend std::ostream &operator<<(std::ostream &os, const Piece &a);
        friend bool operator==(const Piece &a, const Piece &b);
 
@@ -108,7 +97,9 @@ bool operator==(const Piece &a, const Piece &b)
 class Board
 {
 public:
-       explicit Board() : rotations(std::vector<std::vector<Piece>>(NUM_PIECES)) { computeRotations(); };
+       explicit Board() : rotations(std::vector<std::vector<Piece>>(NUM_PIECES)),
+                          widths(std::array<int, GRID_WIDTH>{}),
+                          heights(std::array<int, GRID_HEIGHT>{}) { computeRotations(); };
        void computeRotations()
        {
               rotations[SQUARE] = {Piece({std::make_pair(0, 0), std::make_pair(0, 1),
@@ -156,7 +147,7 @@ public:
                                   Piece({std::make_pair(0, 0), std::make_pair(0, 1),
                                          std::make_pair(1, 0), std::make_pair(2, 0)})};
        }
-       void drawGrid(sf::RenderWindow& window)
+       void drawGrid(sf::RenderWindow &window)
        {
               sf::VertexArray line(sf::Lines, 2);
               line[0].color = sf::Color::Blue;
@@ -174,12 +165,26 @@ public:
                      window.draw(line);
               }
        }
+       void drawPiece(const Piece &p, const int &x, const int &y, sf::RenderWindow &window)
+       {
+              for (auto elem : p.getBody())
+                     drawBlock(x + elem.first, y + elem.second, window);
+       }
        const std::vector<std::vector<Piece>> &getRotations() { return rotations; }
        friend std::ostream &operator<<(std::ostream &, const Board &);
 
 private:
+       void drawBlock(const int &x, const int &y, sf::RenderWindow &window)
+       {
+              sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
+              block.setFillColor(sf::Color::Green);
+              block.setPosition(sf::Vector2f(x * BLOCK_SIZE + 5, y * BLOCK_SIZE + 5));
+              window.draw(block);
+       }
        std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT> grid;
        std::vector<std::vector<Piece>> rotations;
+       std::array<int, GRID_WIDTH> widths;
+       std::array<int, GRID_HEIGHT> heights;
 };
 
 std::ostream &operator<<(std::ostream &os, const Board &b)
@@ -219,6 +224,7 @@ int main()
 {
        Board board;
        sf::RenderWindow window(sf::VideoMode(800, 800), "My window");
+       Piece dog = board.getRotations()[LDOG][1];
 
        // run the program as long as the window is open
        while (window.isOpen())
@@ -232,6 +238,7 @@ int main()
                             window.close();
               }
               board.drawGrid(window);
+              board.drawPiece(dog, 0, 0, window);
               window.display();
        }
        return 0;
