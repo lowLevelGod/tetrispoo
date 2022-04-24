@@ -22,9 +22,8 @@ public:
         PLACE_BAD
     };
     explicit Board();
-    void computeRotations();
     void drawGrid(sf::RenderWindow &window);
-    int place(const Piece &p, const int &x, const int &y, int color);
+    int place(const Piece &p, int x, int y, int color);
 
     int dropHeight(const Piece &p, int col);
 
@@ -39,7 +38,8 @@ public:
     friend std::ostream &operator<<(std::ostream &, const Board &);
 
 private:
-    void drawBlock(const int &x, const int &y, sf::RenderWindow &window, const sf::Color color);
+    void computeRotations();
+    void drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color color);
     std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT> grid;
     std::vector<std::vector<Piece>> rotations;
     std::array<int, GRID_HEIGHT> widths;

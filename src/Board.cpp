@@ -101,7 +101,7 @@ int Board::dropHeight(const Piece &p, int col)
     return res;
 }
 
-int Board::place(const Piece &p, const int &x, const int &y, int color)
+int Board::place(const Piece &p, int x, int y, int color)
 {
     if (!committed)
         return -1;
@@ -233,8 +233,9 @@ Board::Board() : grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
     heights.fill(GRID_HEIGHT - 1);
 }
 
-void Board::drawBlock(const int &x, const int &y, sf::RenderWindow &window, const sf::Color color)
+void Board::drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color color)
 {
+    //magic numbers 5 and 10 used to center tetris block in grid cell
     sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
     block.setFillColor(color);
     block.setPosition(sf::Vector2f(GRID_START + x * BLOCK_SIZE + 5, GRID_START + y * BLOCK_SIZE + 5));
