@@ -7,10 +7,12 @@ project(oop)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-add_executable(${PROJECT_NAME} main.cpp)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 include_directories(headers assets /usr/include /usr/local/include/SFML)
+
+set(SOURCES main.cpp src/Board.cpp src/Piece.cpp src/Game.cpp)
+add_executable(${PROJECT_NAME} ${SOURCES})
+
 
 #SFML Library
     find_package(SFML REQUIRED system window graphics audio)
