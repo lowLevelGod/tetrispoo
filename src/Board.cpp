@@ -1,4 +1,5 @@
 #include "../headers/Board.hpp"
+#include <algorithm>
 
 std::ostream &operator<<(std::ostream &os, const Board &b)
 {
@@ -136,12 +137,14 @@ int Board::place(const Piece &p, int x, int y, int color)
                 break;
             }
     }
-    for (auto row : widths)
+    /*for (auto row : widths)
         if (row == GRID_WIDTH)
         {
             res = PLACE_ROW_FILLED;
             break;
-        }
+        }*/
+    if (std::any_of(widths.begin(), widths.end(), [](int row) { return row == GRID_WIDTH;}))
+        res = PLACE_ROW_FILLED;
     committed = false;
     return res;
 }
