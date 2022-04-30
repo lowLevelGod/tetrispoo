@@ -138,7 +138,10 @@ int Board::place(const Piece &p, int x, int y, int color)
     }
     for (auto row : widths)
         if (row == GRID_WIDTH)
+        {
             res = PLACE_ROW_FILLED;
+            break;
+        }
     committed = false;
     return res;
 }
