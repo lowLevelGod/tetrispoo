@@ -90,7 +90,7 @@ void Board::undo()
     committed = true;
 }
 
-int Board::dropHeight(const Piece &p, int col)
+/*int Board::dropHeight(const Piece &p, int col)
 {
     int res = GRID_HEIGHT + 2;
     for (auto elem : p.getSkirt())
@@ -99,7 +99,7 @@ int Board::dropHeight(const Piece &p, int col)
         // std::cout << heights[col + elem.second]  << " " << elem.first << std::endl;
     }
     return res;
-}
+}*/
 
 int Board::place(const Piece &p, int x, int y, int color)
 {

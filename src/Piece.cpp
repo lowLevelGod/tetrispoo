@@ -11,9 +11,9 @@ Piece &Piece::operator=(const Piece &other)
 Piece::Piece(const std::vector<std::pair<int, int>> &body) : body{body}
 {
     int miny = body[0].first;
-    int maxy = body[0].first;
+    int maxy = miny;
     int minx = body[0].second;
-    int maxx = body[0].second;
+    int maxx = minx;
     for (auto elem : body)
     {
         miny = std::min(minx, elem.first);

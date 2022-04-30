@@ -26,7 +26,7 @@ public:
     void drawGrid(sf::RenderWindow &window);
     int place(const Piece &p, int x, int y, int color);
 
-    int dropHeight(const Piece &p, int col);
+    //int dropHeight(const Piece &p, int col);
 
     void undo();
 

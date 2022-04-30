@@ -15,7 +15,7 @@ private:
        float fallingspeed;
 
 public:
-       explicit Game(int screenWidth = 800, int screenHeight = 800, std::string wName = "Tetris");
+       explicit Game(int screenWidth = 800, int screenHeight = 800, const std::string& wName = "Tetris");
        const Board &getBoard() const { return board; }
        void run();
        friend std::ostream &operator<<(std::ostream &os, const Game &game);
