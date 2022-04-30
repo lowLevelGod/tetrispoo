@@ -1,8 +1,7 @@
 #include "../headers/Game.hpp"
 
-using namespace std::string_literals;
 
-Game::Game(int screenWidth, int screenHeight) : window{sf::VideoMode(screenWidth, screenHeight), "My window"s}, board{Board()}, currentScore{0}, highScore{0}, fallingspeed(slowfall) {}
+Game::Game(int screenWidth, int screenHeight, std::string wName) : window{sf::VideoMode(screenWidth, screenHeight), wName}, board{Board()}, currentScore{0}, highScore{0}, fallingspeed(slowfall) {}
 
 std::ostream &operator<<(std::ostream &os, const Game &game)
 {
