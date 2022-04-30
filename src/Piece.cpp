@@ -56,4 +56,4 @@ bool operator==(const Piece &a, const Piece &b)
 }
 
 Piece::~Piece() { std::cout << "Piece destructor" << std::endl; }
-Piece::Piece(const Piece &other) : body{other.body}, skirt{other.skirt}, width{other.width}, height{other.height} {};
+Piece::Piece(const Piece &other) : body{other.body}, skirt{other.skirt}, width{other.width}, height{other.height} {}
