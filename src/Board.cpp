@@ -74,7 +74,7 @@ int Board::clearRows()
         for (size_t row = 0; row < GRID_HEIGHT; ++row)
             if (grid[row][i])
             {
-                heights[i] = row;
+                heights[i] = static_cast<int>(row);
                 break;
             }
     }
@@ -133,7 +133,7 @@ int Board::place(const Piece &p, int x, int y, int color)
         for (size_t row = 0; row < GRID_HEIGHT; ++row)
             if (grid[row][i])
             {
-                heights[i] = row;
+                heights[i] = static_cast<int>(row);
                 break;
             }
     }
@@ -162,19 +162,19 @@ void Board::drawGrid(sf::RenderWindow &window)
     line[1].color = sf::Color::Blue;
     for (int x = 0; x < GRID_WIDTH + 1; ++x)
     {
-        line[0].position = sf::Vector2f(GRID_START + x * BLOCK_SIZE, GRID_START);
-        line[1].position = sf::Vector2f(GRID_START + x * BLOCK_SIZE, GRID_START + GRID_HEIGHT * BLOCK_SIZE);
+        line[0].position = sf::Vector2f(static_cast<float>(GRID_START + x * BLOCK_SIZE), static_cast<float>(GRID_START));
+        line[1].position = sf::Vector2f(static_cast<float>(GRID_START + x * BLOCK_SIZE), static_cast<float>(GRID_START + GRID_HEIGHT * BLOCK_SIZE));
         window.draw(line);
     }
     for (int y = 0; y < GRID_HEIGHT + 1; ++y)
     {
-        line[0].position = sf::Vector2f(GRID_START, GRID_START + y * BLOCK_SIZE);
-        line[1].position = sf::Vector2f(GRID_START + GRID_WIDTH * BLOCK_SIZE, GRID_START + y * BLOCK_SIZE);
+        line[0].position = sf::Vector2f(static_cast<float>(GRID_START), static_cast<float>(GRID_START + y * BLOCK_SIZE));
+        line[1].position = sf::Vector2f(static_cast<float>(GRID_START + GRID_WIDTH * BLOCK_SIZE), static_cast<float>(GRID_START + y * BLOCK_SIZE));
         window.draw(line);
     }
     for (size_t row = 0; row < GRID_HEIGHT; ++row)
         for (size_t col = 0; col < GRID_WIDTH; ++col)
-            drawBlock(col, row, window, colors[grid[row][col]]);
+            drawBlock(static_cast<int>(col), static_cast<int>(row), window, colors[grid[row][col]]);
 }
 
 void Board::computeRotations()
@@ -244,6 +244,6 @@ void Board::drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color co
     //magic numbers 5 and 10 used to center tetris block in grid cell
     sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
     block.setFillColor(color);
-    block.setPosition(sf::Vector2f(GRID_START + x * BLOCK_SIZE + 5, GRID_START + y * BLOCK_SIZE + 5));
+    block.setPosition(sf::Vector2f(static_cast<float>(GRID_START + x * BLOCK_SIZE + 5), static_cast<float>(GRID_START + y * BLOCK_SIZE + 5)));
     window.draw(block);
 }

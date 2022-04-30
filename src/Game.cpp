@@ -13,13 +13,13 @@ std::ostream &operator<<(std::ostream &os, const Game &game)
 
 void Game::run()
 {
-    srand(time(NULL));
+    srand(static_cast<unsigned int>(time(NULL)));
     int pieceNo = rand() % NUM_PIECES;
     sf::Clock clock;
     this->window.setFramerateLimit(60);
     int incr = 0;
     int col = 0;
-    int rotlen = this->board.getRotations()[pieceNo].size();
+    int rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     int rot = rand() % rotlen;
     Piece p = this->board.getRotations()[pieceNo][rot];
     int color = rand() % (NUM_COLORS - 1) + 1;
@@ -75,7 +75,7 @@ void Game::run()
         else
         {
             pieceNo = rand() % NUM_PIECES;
-            rotlen = this->board.getRotations()[pieceNo].size();
+            rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
             col = 0;
             incr = 0;
             rot = rand() % rotlen;
