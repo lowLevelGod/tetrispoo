@@ -7,20 +7,22 @@ project(oop)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
-include_directories(headers assets /usr/include /usr/local/include/SFML)
 
+include(FetchContent)
+
+FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG        2888d9c56eba4dedb93a84a3c57957e4a907d428 # master as of 2021-11-18
+)
+
+FetchContent_MakeAvailable(SFML)
+
+include_directories(headers assets)
 set(SOURCES main.cpp src/Board.cpp src/Piece.cpp src/Game.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 
-#SFML Library
-    find_package(SFML REQUIRED system window graphics audio)
-    if (SFML_FOUND)
-        include_directories(${SFML_INCLUDE_DIR})
-        target_link_libraries(${PROJECT_NAME} ${SFML_LIBRARIES})
-    endif()
-    file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 ###############################################################################
 
 # external dependencies
@@ -80,12 +82,33 @@ elseif(UNIX)
     endif()
 endif()
 
+
+function(sfml_set_custom_stdlib target)
+    if(APPLE)
+    elseif(UNIX)
+        if("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+            target_compile_options(${target} PRIVATE "-stdlib=libc++")
+            target_link_libraries(${target} PRIVATE "-stdlib=libc++")
+        endif()
+    endif()
+endfunction()
+
+FetchContent_MakeAvailable(SFML)
+
+sfml_set_custom_stdlib(sfml-system)
+sfml_set_custom_stdlib(sfml-window)
+sfml_set_custom_stdlib(sfml-graphics)
+
 ###############################################################################
 
 # use SYSTEM so clang-tidy does not report warnings from these directories
 #target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${<SomeLib>_SOURCE_DIR}/include)
 #target_link_directories(${PROJECT_NAME} PRIVATE ${<SomeLib>_BINARY_DIR}/lib)
 #target_link_libraries(${PROJECT_NAME} <SomeLib>)
+
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
+target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
+target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system)
 
 ###############################################################################
 

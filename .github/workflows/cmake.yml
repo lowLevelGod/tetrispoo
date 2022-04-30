@@ -23,6 +23,7 @@ jobs:
       CC: ${{ matrix.c }}
       CXX: ${{ matrix.cxx }}
       BUILD_TYPE: Debug
+      SFML_VERSION: "2021-11-18"
 
     strategy:
       fail-fast: false
@@ -34,46 +35,46 @@ jobs:
             name: Ubuntu 20.04 Clang 11
             # The flag CMAKE_EXPORT_COMPILE_COMMANDS generates compile_commands.json
             # which is used by cppcheck and clang-tidy
-            cmake_flags: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            cmake_flags: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_SHARED_LIBS=FALSE
             # This env runs cppcheck and sanitizers
 
           - os: ubuntu-20.04
             c: clang-12
             cxx: clang++-12
             name: Ubuntu 20.04 Clang 12
-            cmake_flags: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+            cmake_flags: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_SHARED_LIBS=FALSE
             # This env runs clang-tidy and sanitizers
 
           - os: ubuntu-20.04
             c: gcc-10
             cxx: g++-10
             name: Ubuntu 20.04 GCC 10
-            # cmake_flags:
+            cmake_flags: -DBUILD_SHARED_LIBS=FALSE
             # This env runs valgrind
 
           - os: macos-11
             c: clang
             cxx: clang++
             name: macOS 11 Apple Clang 13
-            # cmake_flags:
+            cmake_flags: -DSFML_BUILD_FRAMEWORKS=FALSE -DSFML_DEPENDENCIES_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts -DBUILD_SHARED_LIBS=FALSE
 
-          - os: macos-11
-            c: gcc-11
-            cxx: g++-11
-            name: macOS 11 GCC 11
-            # cmake_flags:
+#           - os: macos-11
+#             c: gcc-11
+#             cxx: g++-11
+#             name: macOS 11 GCC 11
+#             cmake_flags: -DSFML_BUILD_FRAMEWORKS=FALSE -DSFML_DEPENDENCIES_INSTALL_PREFIX=$GITHUB_WORKSPACE/artifacts -DBUILD_SHARED_LIBS=FALSE
 
           - os: windows-2022
             c: cl
             cxx: cl
             name: Windows 2022 MSVC 19.30
-            # cmake_flags:
+            cmake_flags: -DBUILD_SHARED_LIBS=TRUE
 
           - os: windows-2022
             c: gcc
             cxx: g++
             name: Windows 2022 GCC 10
-            # cmake_flags:
+            cmake_flags: -DBUILD_SHARED_LIBS=TRUE
             cmake_generator: Ninja
             # Ninja is faster
             # other generator: "\"MinGW Makefiles\""
@@ -87,11 +88,19 @@ jobs:
           mkdir $GITHUB_WORKSPACE/artifacts
 
       # Common Linux dependencies
-      # - name: Install Linux Dependencies
-      #   if: runner.os == 'Linux'
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install ...
+      - name: Install Linux Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+            libxrandr-dev \
+            libxcursor-dev \
+            libudev-dev \
+            libopenal-dev \
+            libflac-dev \
+            libvorbis-dev \
+            libgl1-mesa-dev \
+            libegl1-mesa-dev
 
       - name: Install clang-tidy and libc++ (Linux Clang 12)
         if: runner.os == 'Linux' && matrix.cxx == 'clang++-12'
@@ -141,14 +150,14 @@ jobs:
           sudo cmake --install build
 
       # Uncomment when using external dependencies so they will be cached
-      # - name: Cache deps
-      #   uses: actions/cache@v2
-      #   id: cache-deps
-      #   # make the key depend on the dependency version
-      #   with:
-      #     path: |
-      #       build/_deps
-      #     key: cache-${{ matrix.cmake_generator }}-${{ matrix.os }}-${{ matrix.cxx }}
+      - name: Cache deps
+        uses: actions/cache@v2
+        id: cache-deps
+        # make the key depend on the dependency version
+        with:
+          path: |
+            build/_deps
+          key: cache-${{ env.SFML_VERSION }}-${{ matrix.cmake_generator }}-${{ matrix.os }}-${{ matrix.cxx }}
 
       # NOTE: GH Actions does not allow updating the cache yet
       # Using the workaround found here: https://github.com/actions/cache/issues/171
@@ -170,7 +179,7 @@ jobs:
         if: runner.os == 'Windows' && matrix.cxx == 'g++'
         with:
           path: gcc
-          key: ${{ runner.os }}-gcc-11.2-ucrt-r5
+          key: ${{ runner.os }}-gcc-10.3-ucrt-r5
 
       - name: Download toolchain (MinGW)
         uses: suisei-cn/actions-download-file@v1
@@ -180,14 +189,13 @@ jobs:
         # For more versions, see https://winlibs.com or
         # https://github.com/brechtsanders/winlibs_mingw/releases/
         with:
-          url: "https://github.com/brechtsanders/winlibs_mingw/releases/download/11.2.0-9.0.0-ucrt-r5/winlibs-x86_64-posix-seh-gcc-11.2.0-mingw-w64ucrt-9.0.0-r5.7z"
+          url: "https://github.com/brechtsanders/winlibs_mingw/releases/download/10.3.0-12.0.0-9.0.0-r2/winlibs-x86_64-posix-seh-gcc-10.3.0-mingw-w64-9.0.0-r2.7z"
           target: compiler
 
       - name: Install toolchain (MinGW)
         if: runner.os == 'Windows' && matrix.cxx == 'g++' && steps.cache-mingw.outputs.cache-hit != 'true'
         run: |
-          7z x compiler/winlibs-x86_64-posix-seh-gcc-11.2.0-mingw-w64ucrt-9.0.0-r5.7z -ogcc
-
+          7z x compiler/winlibs-x86_64-posix-seh-gcc-10.3.0-mingw-w64-9.0.0-r2.7z -ogcc
       - name: Configure CMake (MinGW)
         if: runner.os == 'Windows' && matrix.cxx == 'g++'
         run: |
@@ -254,24 +262,24 @@ jobs:
             -DCMAKE_BUILD_WITH_INSTALL_RPATH=true
           cmake --build . -j6 -- cxx cxxabi
 
-      - name: Sanitizers
-        # run one sanitizer for each OS to avoid building extra binaries;
-        # memory on Linux clang, address on macOS clang
-        # if: runner.os != 'Windows'
-        if: startsWith(matrix.cxx, 'clang++')
-        # detect_leaks is not supported on macOS
-        # env:
-        # ASAN_OPTIONS: detect_leaks=1
-        # NOTE: update executable name if it is changed in CMakeLists.txt
-        run: |
-          cat date.txt | ./artifacts/bin/oop
+#       - name: Sanitizers
+#         # run one sanitizer for each OS to avoid building extra binaries;
+#         # memory on Linux clang, address on macOS clang
+#         # if: runner.os != 'Windows'
+#         if: startsWith(matrix.cxx, 'clang++')
+#         # detect_leaks is not supported on macOS
+#         # env:
+#         # ASAN_OPTIONS: detect_leaks=1
+#         # NOTE: update executable name if it is changed in CMakeLists.txt
+#         run: |
+#           cat date.txt | ./artifacts/bin/oop
 
-      - name: Valgrind
-        if: runner.os == 'Linux' && matrix.cxx == 'g++-10'
-        # NOTE: update executable name if it is changed in CMakeLists.txt
-        run: |
-          # remove --show-leak-kinds=all --track-origins=yes if there are many leaks in external libs
-          cat date.txt | valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./artifacts/bin/oop
+#       - name: Valgrind
+#         if: runner.os == 'Linux' && matrix.cxx == 'g++-10'
+#         # NOTE: update executable name if it is changed in CMakeLists.txt
+#         run: |
+#           # remove --show-leak-kinds=all --track-origins=yes if there are many leaks in external libs
+#           cat date.txt | valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --error-exitcode=1 ./artifacts/bin/oop
 
       - name: Move artifacts
         run: |
