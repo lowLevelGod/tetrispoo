@@ -8,7 +8,6 @@ const int NUM_PIECES = 7;
 const int GRID_WIDTH = 10;
 const int GRID_HEIGHT = 24;
 const int BLOCK_SIZE = 35;
-const int GRID_START = 50;
 const int BOARD_START = 2;
 const int NUM_COLORS = 6;
 
@@ -22,19 +21,20 @@ public:
         PLACE_OUT_BOUNDS,
         PLACE_BAD
     };
-    explicit Board();
+    explicit Board(int GRID_START=50);
     void drawGrid(sf::RenderWindow &window);
     int place(const Piece &p, int x, int y, int color);
 
-    //int dropHeight(const Piece &p, int col);
+    int dropHeight(const Piece &p, int col);
 
     void undo();
 
     int clearRows();
 
-    int movePieceDown(const Piece &p, int col, int &incr, int color);
+    int movePieceDown(const Piece &p, int col, int &incr, int color, int clockAmount);
     void commit() { committed = true; }
-    bool isFilled(int row, int col) { return grid[row][col]; }
+    bool isFilled(int row, int col);
+    bool isMoveValid(int incr, int col);
     const std::vector<std::vector<Piece>> &getRotations() { return rotations; }
     friend std::ostream &operator<<(std::ostream &, const Board &);
 
@@ -50,4 +50,5 @@ private:
     std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT> copy_grid;
     std::array<sf::Color, NUM_COLORS> colors;
     bool committed;
+    int GRID_START;
 };

@@ -1,11 +1,13 @@
 #include "../headers/Game.hpp"
+#include "../headers/Player.hpp"
+#include <memory>
 
 
-Game::Game(int screenWidth, int screenHeight, const std::string& wName) : window{sf::VideoMode(screenWidth, screenHeight), wName}, board{Board()}, currentScore{0}, highScore{0}, fallingspeed(slowfall) {}
+Game::Game(int screenWidth, int screenHeight, const std::string& wName) : window{sf::VideoMode(screenWidth, screenHeight), wName},currentScore{0}, highScore{0}{}
 
 std::ostream &operator<<(std::ostream &os, const Game &game)
 {
-    std::cout << "Current board is: " << game.board << std::endl;
+    //std::cout << "Current board is: " << game.board << std::endl;
     std::cout << "Current score is: " << game.currentScore << std::endl;
     std::cout << "Current high score is: " << game.highScore << std::endl;
     return os;
@@ -13,76 +15,41 @@ std::ostream &operator<<(std::ostream &os, const Game &game)
 
 void Game::run()
 {
-    srand(static_cast<unsigned int>(time(NULL)));
-    int pieceNo = rand() % NUM_PIECES;
-    sf::Clock clock;
     this->window.setFramerateLimit(60);
-    int incr = 0;
-    int col = 0;
-    int rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
-    int rot = rand() % rotlen;
-    Piece p = this->board.getRotations()[pieceNo][rot];
-    int color = rand() % (NUM_COLORS - 1) + 1;
-    while (window.isOpen())
-    {
-        // check all the window's events that were triggered since the last iteration of the loop
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            // "close requested" event: we close the window
-            switch (event.type)
-            {
-            case sf::Event::Closed:
-                window.close();
-                break;
-            case sf::Event::KeyPressed:
-                switch (event.key.code)
-                {
-                case sf::Keyboard::Left:
-                    if (col > 0 && !this->board.isFilled(incr, col - 1))
-                        col -= 1;
-                    break;
-                case sf::Keyboard::Right:
-                    if (col + p.getWidth() < GRID_WIDTH && !this->board.isFilled(incr, col + p.getWidth() + 1))
-                        col += 1;
-                    break;
-                case sf::Keyboard::Up:
-                    rot = (rot + 1) % rotlen;
-                    p = this->board.getRotations()[pieceNo][rot];
-                    while (col + p.getWidth() > GRID_WIDTH)
-                        col -= 1;
-                    break;
-                case sf::Keyboard::Down:
-                    fallingspeed = fastfall;
-                    break;
-                default:
-                    break;
-                }
-            default:
-                break;
-            }
-        }
+    sf::Clock clock;
+    sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
 
-        int status = this->board.movePieceDown(p, col, incr, color);
-        this->board.drawGrid(this->window);
-        while (clock.getElapsedTime().asSeconds() < fallingspeed)
-            ;
-        clock.restart();
-        this->window.display();
-        fallingspeed = slowfall;
-        if (!status)
-            this->board.undo();
-        else
-        {
-            pieceNo = rand() % NUM_PIECES;
-            rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
-            col = 0;
-            incr = 0;
-            rot = rand() % rotlen;
-            p = this->board.getRotations()[pieceNo][rot];
-            color = rand() % NUM_COLORS;
-            this->board.clearRows();
-            this->board.commit();
-        }
+    srand(static_cast<unsigned int>(time(NULL)));
+    std::shared_ptr<Player> human{new Human(Board{50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall)};
+    std::shared_ptr<Player> robot{new Robot(Board{50 + 400}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall)};
+    while (this->window.isOpen())
+    {
+        int clockDiff = tick(clock.getElapsedTime().asMilliseconds(), lastClock);
+        human->move(clockDiff, this->window);
+        robot->move(clockDiff, this->window);
+        if (clockDiff)
+            window.display();
     }
+}
+
+int Game::tick(sf::Int32 currentClock, sf::Int32& lastClock)
+{
+    sf::Int32 elapsed = (currentClock - lastClock);
+    if (elapsed > sf::milliseconds(Game::timeDelay).asMilliseconds())
+    {
+        lastClock = currentClock;
+        return static_cast<int>(elapsed / sf::milliseconds(Game::timeDelay).asMilliseconds());
+    }
+
+    return 0;
+}
+
+int Game::getfastfall()
+{
+    return Game::fastfall;
+}
+
+int Game::getslowfall()
+{
+    return Game::slowfall;
 }

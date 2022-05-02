@@ -19,7 +19,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SFML)
 
 include_directories(headers assets)
-set(SOURCES main.cpp src/Board.cpp src/Piece.cpp src/Game.cpp)
+set(SOURCES main.cpp src/Board.cpp src/Piece.cpp src/Game.cpp src/Player.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 

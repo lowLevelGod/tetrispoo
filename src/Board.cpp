@@ -1,5 +1,6 @@
 #include "../headers/Board.hpp"
 #include <algorithm>
+#include <cmath>
 
 std::ostream &operator<<(std::ostream &os, const Board &b)
 {
@@ -34,12 +35,16 @@ std::ostream &operator<<(std::ostream &os, const Board &b)
     return os;
 }
 
-int Board::movePieceDown(const Piece &p, int col, int &incr, int color)
+int Board::movePieceDown(const Piece &p, int col, int &incr, int color, int clockAmount)
 {
-    int status = this->place(p, BOARD_START + incr + 1, col, color);
+    int limit = abs(dropHeight(p, col) - incr);
+    //std::cout << incr << " " << limit << std::endl;
+    int amountAdded = std::min(clockAmount, limit);
+    int status = this->place(p, BOARD_START + incr + amountAdded, col, color);
+    //std::cout << status << std::endl;
     if (status == this->PLACE_OK)
     {
-        ++incr;
+        incr += amountAdded;
     }
     else
     {
@@ -91,16 +96,17 @@ void Board::undo()
     committed = true;
 }
 
-/*int Board::dropHeight(const Piece &p, int col)
+int Board::dropHeight(const Piece &p, int col)
 {
-    int res = GRID_HEIGHT + 2;
+    int res = GRID_HEIGHT - 1;
     for (auto elem : p.getSkirt())
     {
         res = std::min(heights[col + elem.second] - elem.first, res);
         // std::cout << heights[col + elem.second]  << " " << elem.first << std::endl;
     }
+    //std::cout << res << " " << p << std::endl;
     return res;
-}*/
+}
 
 int Board::place(const Piece &p, int x, int y, int color)
 {
@@ -225,14 +231,15 @@ void Board::computeRotations()
                                std::make_pair(0, 1), std::make_pair(0, 2)})};
 }
 
-Board::Board() : grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
+Board::Board(int GRID_START) : grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
                  rotations(std::vector<std::vector<Piece>>(NUM_PIECES)),
                  widths(std::array<int, GRID_HEIGHT>{}),
                  copy_widths(std::array<int, GRID_HEIGHT>{}),
                  copy_heights(std::array<int, GRID_WIDTH>{}),
                  copy_grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
                  colors({sf::Color::Black, sf::Color::Green, sf::Color::Red, sf::Color::Cyan, sf::Color::Magenta, sf::Color::Yellow}),
-                 committed(true)
+                 committed(true),
+                 GRID_START(GRID_START)
 {
     computeRotations();
     heights = std::array<int, GRID_WIDTH>{};
@@ -246,4 +253,11 @@ void Board::drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color co
     block.setFillColor(color);
     block.setPosition(sf::Vector2f(static_cast<float>(GRID_START + x * BLOCK_SIZE + 5), static_cast<float>(GRID_START + y * BLOCK_SIZE + 5)));
     window.draw(block);
+}
+
+bool Board::isFilled(int row, int col) { return grid[row][col]; }
+
+bool Board::isMoveValid(int incr, int col)
+{
+    return col > 0 && col < GRID_WIDTH && !isFilled(incr, col);
 }

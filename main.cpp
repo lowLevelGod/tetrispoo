@@ -4,9 +4,10 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
-#include "Piece.hpp"
-#include "Board.hpp"
 #include "Game.hpp"
+#include "Board.hpp"
+#include "Piece.hpp"
+#include "Player.hpp"
 
 int main()
 {
