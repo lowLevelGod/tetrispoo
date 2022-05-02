@@ -6,7 +6,7 @@ class Player
     public:
         virtual void move(int, sf::RenderWindow&) = 0;
         Player(Board board, int pieceNo, int incr, int col, int color, int fallingspeed);
-        ~Player() = default;
+        virtual ~Player() = default;
     protected:
         Board board;
         int pieceNo;
