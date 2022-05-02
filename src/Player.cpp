@@ -1,14 +1,14 @@
 #include "../headers/Player.hpp"
 #include "../headers/Game.hpp"
 
-Player::Player(Board board, int pieceNo, int incr, int col, int color, int fallingspeed) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}
+Player::Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
     p = this->board.getRotations()[pieceNo][rot];
 }
 
-Human::Human(Board board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
+Human::Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -50,7 +50,7 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
     if (clockDiff)
     {
-        int status = this->board.movePieceDown(p, col, incr, color, (clockDiff ? clockDiff : 1) * fallingspeed);
+        int status = this->board.movePieceDown(p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
         if (!status)
@@ -70,14 +70,14 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-Robot::Robot(Board board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
+Robot::Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
 
 void Robot::move(int clockDiff, sf::RenderWindow &window)
 {
     if (clockDiff)
     {
-        col = bestMove(incr, col);
-        int status = this->board.movePieceDown(p, col, incr, color, (clockDiff ? clockDiff : 1) * fallingspeed);
+        col = bestMove();
+        int status = this->board.movePieceDown(p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
         if (!status)
@@ -97,10 +97,10 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-int Robot::bestMove(int incr, int col)
+int Robot::bestMove()
 {
     int nxtCol = rand() % 2 ? 1 : -1;
-    if (board.isMoveValid(incr, col + nxtCol))
+    if (board.isMoveValid(this->incr, this->col + nxtCol))
         return nxtCol;
     return 0;
 }
