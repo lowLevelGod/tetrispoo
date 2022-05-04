@@ -41,6 +41,12 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             case sf::Keyboard::Down:
                 fallingspeed = Game::getfastfall();
                 break;
+            case sf::Keyboard::R:
+                Game::setResetMode();
+                return;
+            case sf::Keyboard::Q:
+                Game::setQuitMode();
+                return;
             default:
                 break;
             }
@@ -103,4 +109,14 @@ int Robot::bestMove()
     if (board.isMoveValid(this->incr, this->col + nxtCol))
         return nxtCol;
     return 0;
+}
+
+std::shared_ptr<Player> Human::clone()
+{
+    return std::make_shared<Human>(*this);
+}
+
+std::shared_ptr<Player> Robot::clone()
+{
+    return std::make_shared<Robot>(*this);
 }

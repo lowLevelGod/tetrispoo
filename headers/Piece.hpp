@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
+#include <memory>
 
 enum PieceNames
 {
@@ -20,6 +21,7 @@ public:
        explicit Piece(const std::vector<std::pair<int, int>> &body);
        Piece(const Piece &other);
        Piece &operator=(const Piece &other);
+       virtual std::shared_ptr<Piece> clone();
        ~Piece();
 
        const std::vector<std::pair<int, int>> &getBody() const { return body; }
@@ -34,4 +36,10 @@ private:
        std::vector<std::pair<int, int>> skirt;
        int width;
        int height;
+};
+
+class Powerup : public Piece
+{
+public:
+       std::shared_ptr<Piece> clone() override;
 };

@@ -21,7 +21,7 @@ public:
         PLACE_OUT_BOUNDS,
         PLACE_BAD
     };
-    explicit Board(int GRID_START=50);
+    explicit Board(int GRID_COL_START=50, int GRID_ROW_START=50);
     void drawGrid(sf::RenderWindow &window);
     int place(const Piece &p, int x, int y, int color);
 
@@ -50,5 +50,6 @@ private:
     std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT> copy_grid;
     std::array<sf::Color, NUM_COLORS> colors;
     bool committed;
-    int GRID_START;
+    int GRID_ROW_START;
+    int GRID_COL_START;
 };
