@@ -22,7 +22,7 @@ public:
        Piece(const Piece &other);
        Piece &operator=(const Piece &other);
        virtual std::shared_ptr<Piece> clone();
-       ~Piece();
+       virtual ~Piece() = default;
 
        const std::vector<std::pair<int, int>> &getBody() const { return body; }
        int getWidth() { return width; }
@@ -31,7 +31,7 @@ public:
        friend std::ostream &operator<<(std::ostream &os, const Piece &a);
        friend bool operator==(const Piece &a, const Piece &b);
 
-private:
+protected:
        std::vector<std::pair<int, int>> body;
        std::vector<std::pair<int, int>> skirt;
        int width;
@@ -41,5 +41,11 @@ private:
 class Powerup : public Piece
 {
 public:
+       explicit Powerup(const std::vector<std::pair<int, int>> &body);
+       Powerup(const Powerup &other);
+       Powerup(const Piece &other);
+       Powerup &operator=(const Powerup &other);
        std::shared_ptr<Piece> clone() override;
+       virtual ~Powerup() = default;
+       //TO-DO special powerup function
 };

@@ -15,7 +15,7 @@ class Player
         int col;
         int rotlen;
         int rot;
-        Piece p;
+        std::shared_ptr<Piece> p;
         int color;
         int fallingspeed;
     friend class Game;

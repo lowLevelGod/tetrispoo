@@ -1,16 +1,17 @@
 #include "../headers/Game.hpp"
 #include "../headers/Player.hpp"
+#include "../headers/Exception.hpp"
 #include <memory>
 
-
-Game::Game(int screenWidth, int screenHeight, const std::string& wName) : window{sf::VideoMode(screenWidth, screenHeight), wName},currentScore{0}, highScore{0}{
+Game::Game(int screenWidth, int screenHeight, const std::string &wName) : window{sf::VideoMode(screenWidth, screenHeight), wName}, currentScore{0}, highScore{0}
+{
     Game::isReset = false;
     Game::isQuit = false;
 }
 
 std::ostream &operator<<(std::ostream &os, const Game &game)
 {
-    //std::cout << "Current board is: " << game.board << std::endl;
+    // std::cout << "Current board is: " << game.board << std::endl;
     std::cout << "Current score is: " << game.currentScore << std::endl;
     std::cout << "Current high score is: " << game.highScore << std::endl;
     return os;
@@ -18,24 +19,14 @@ std::ostream &operator<<(std::ostream &os, const Game &game)
 
 void Game::run()
 {
+    this->window.setFramerateLimit(60);
     sf::Font font;
     if (!font.loadFromFile("arial.ttf"))
     {
-        throw _EXCEPTION_PTR_H;
+        throw Exception("Failed to load font !");
     }
-    sf::Text text;
-    text.setFont(font);
-    text.setFillColor(sf::Color::Green);
-    text.setPosition(sf::Vector2f(static_cast<float>(200), static_cast<float>(20)));
-    text.setString("YOU");
+    Game::initRender(font);
 
-    sf::Text text2;
-    text2.setFont(font);
-    text2.setFillColor(sf::Color::Red);
-    text2.setPosition(sf::Vector2f(static_cast<float>(900), static_cast<float>(20)));
-    text2.setString("BOT");
-
-    this->window.setFramerateLimit(60);
     sf::Clock clock;
     sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
 
@@ -56,41 +47,13 @@ void Game::run()
         robot->move(clockDiff, this->window);
         if (clockDiff)
         {
-            std::shared_ptr<Piece> holdp = human->p.clone();
-
-            int xc = 16, yc = 16;
-            for (int col = -4; col < 4; ++col)
-                for (int row = -4; row < 4; ++row)
-            {
-                sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
-                block.setFillColor(sf::Color::Black);
-                block.setPosition(sf::Vector2f(static_cast<float>((col + xc) * BLOCK_SIZE + 5), static_cast<float>((row + yc) * BLOCK_SIZE + 5)));
-                window.draw(block);
-            }
-
-            sf::Text text3;
-            text3.setFont(font);
-            text3.setFillColor(sf::Color::Yellow);
-            text3.setPosition(sf::Vector2f(static_cast<float>((xc - 2) * BLOCK_SIZE), static_cast<float>((xc - 4) * BLOCK_SIZE)));
-            text3.setString("HOLD");
-
-            for (auto elem : holdp->getBody())
-            {
-                sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
-                block.setFillColor(sf::Color::Green);
-                block.setPosition(sf::Vector2f(static_cast<float>((elem.first + xc) * BLOCK_SIZE + 5), static_cast<float>((elem.second + yc) * BLOCK_SIZE + 5)));
-                window.draw(block);
-            }
-
-            this->window.draw(text);
-            this->window.draw(text2);
-            this->window.draw(text3);
+            this->drawToWindow(human->p->clone());
             window.display();
         }
     }
 }
 
-int Game::tick(sf::Int32 currentClock, sf::Int32& lastClock)
+int Game::tick(sf::Int32 currentClock, sf::Int32 &lastClock)
 {
     sf::Int32 elapsed = (currentClock - lastClock);
     if (elapsed > sf::milliseconds(Game::timeDelay).asMilliseconds())
@@ -112,7 +75,7 @@ int Game::getslowfall()
     return Game::slowfall;
 }
 
-void Game::reset(std::shared_ptr<Player>& human, std::shared_ptr<Player>& robot)
+void Game::reset(std::shared_ptr<Player> &human, std::shared_ptr<Player> &robot)
 {
     std::shared_ptr<Player> humantemp = std::make_shared<Human>(Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall));
     std::shared_ptr<Player> robottemp = std::make_shared<Robot>(Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall));
@@ -130,4 +93,51 @@ void Game::setResetMode()
 void Game::setQuitMode()
 {
     Game::isQuit = true;
+}
+
+void Game::initRender(const sf::Font &font)
+{
+    sf::Text text;
+    text.setFont(font);
+    text.setFillColor(sf::Color::Green);
+    text.setPosition(sf::Vector2f(static_cast<float>(200), static_cast<float>(20)));
+    text.setString("YOU");
+
+    Game::text.push_back(text);
+
+    text.setFillColor(sf::Color::Red);
+    text.setPosition(sf::Vector2f(static_cast<float>(900), static_cast<float>(20)));
+    text.setString("BOT");
+
+    Game::text.push_back(text);
+
+    text.setFillColor(sf::Color::Yellow);
+    text.setPosition(sf::Vector2f(static_cast<float>((16 - 2) * BLOCK_SIZE), static_cast<float>((16 - 4) * BLOCK_SIZE)));
+    text.setString("HOLD");
+
+    Game::text.push_back(text);
+}
+
+void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
+{
+    // prepare area for hold
+    int xc = 16, yc = 16;
+    for (int col = -4; col < 4; ++col)
+        for (int row = -4; row < 4; ++row)
+        {
+            sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
+            block.setFillColor(sf::Color::Black);
+            block.setPosition(sf::Vector2f(static_cast<float>((col + xc) * BLOCK_SIZE + 5), static_cast<float>((row + yc) * BLOCK_SIZE + 5)));
+            window.draw(block);
+        }
+    // draw piece for hold
+    for (auto elem : holdp->getBody())
+    {
+        sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
+        block.setFillColor(sf::Color::Green);
+        block.setPosition(sf::Vector2f(static_cast<float>((elem.second + xc) * BLOCK_SIZE + 5), static_cast<float>((elem.first + yc) * BLOCK_SIZE + 5)));
+        window.draw(block);
+    }
+    for (auto elem : Game::text)
+        this->window.draw(elem);
 }

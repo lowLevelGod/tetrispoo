@@ -32,7 +32,7 @@ Piece::Piece(const std::vector<std::pair<int, int>> &body) : body{body}
                 mx = std::max(mx, elem1.first);
         }
         if (mx != -100)
-            skirt.push_back(std::make_pair(mx, i));
+            this->skirt.push_back(std::make_pair(mx, i));
     }
 }
 
@@ -55,7 +55,7 @@ bool operator==(const Piece &a, const Piece &b)
     return true;
 }
 
-Piece::~Piece() { /*std::cout << "Piece destructor" << std::endl;*/ }
+// Piece::~Piece() { /*std::cout << "Piece destructor" << std::endl;*/ }
 Piece::Piece(const Piece &other) : body{other.body}, skirt{other.skirt}, width{other.width}, height{other.height} {}
 
 std::shared_ptr<Piece> Piece::clone()
@@ -66,4 +66,17 @@ std::shared_ptr<Piece> Piece::clone()
 std::shared_ptr<Piece> Powerup::clone()
 {
     return std::make_shared<Powerup>(*this);
+}
+
+Powerup::Powerup(const std::vector<std::pair<int, int>> &body) : Piece(body){}
+Powerup::Powerup(const Powerup &other) : Piece(other) {}
+Powerup &Powerup::operator=(const Powerup &other) 
+{
+    Piece::operator=(other);
+    
+    return *this;
+}
+Powerup::Powerup(const Piece &other) : Piece(other)
+{
+
 }

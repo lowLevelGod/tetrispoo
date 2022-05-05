@@ -5,7 +5,7 @@ Player::Player(const Board& board, int pieceNo, int incr, int col, int color, in
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
-    p = this->board.getRotations()[pieceNo][rot];
+    p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
 Human::Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
@@ -29,13 +29,13 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
                     col -= 1;
                 break;
             case sf::Keyboard::Right:
-                if (col + p.getWidth() < GRID_WIDTH && !this->board.isFilled(incr, col + p.getWidth() + 1))
+                if (col + p->getWidth() < GRID_WIDTH && !this->board.isFilled(incr, col + p->getWidth() + 1))
                     col += 1;
                 break;
             case sf::Keyboard::Up:
                 rot = (rot + 1) % rotlen;
-                p = this->board.getRotations()[pieceNo][rot];
-                while (col + p.getWidth() > GRID_WIDTH)
+                p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
+                while (col + p->getWidth() > GRID_WIDTH)
                     col -= 1;
                 break;
             case sf::Keyboard::Down:
@@ -56,19 +56,32 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
     if (clockDiff)
     {
-        int status = this->board.movePieceDown(p, col, incr, color, clockDiff * fallingspeed);
+        int status = this->board.movePieceDown(*p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
         if (!status)
             this->board.undo();
         else
         {
+            std::shared_ptr<Piece> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
+            if (castedp)
+            {
+                std::cout << "Powerup" << std::endl;
+                //TO-DO activate powerup    
+            }
+
             this->pieceNo = rand() % NUM_PIECES;
             this->rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
             this->col = 0;
             this->incr = 0;
             this->rot = rand() % rotlen;
-            this->p = this->board.getRotations()[pieceNo][rot];
+            //Next piece can be powerup or normal
+            int pwrup = rand() % 2;
+            if (pwrup)
+                this->p = std::make_shared<Powerup>(Powerup(this->board.getRotations()[pieceNo][rot]));
+            else
+                this->p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
+
             this->color = rand() % (NUM_COLORS - 1) + 1;
             this->board.clearRows();
             this->board.commit();
@@ -83,7 +96,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
     if (clockDiff)
     {
         col = bestMove();
-        int status = this->board.movePieceDown(p, col, incr, color, clockDiff * fallingspeed);
+        int status = this->board.movePieceDown(*p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
         if (!status)
@@ -95,7 +108,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
             this->col = 0;
             this->incr = 0;
             this->rot = rand() % rotlen;
-            this->p = this->board.getRotations()[pieceNo][rot];
+            this->p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
             this->color = rand() % (NUM_COLORS - 1) + 1;
             this->board.clearRows();
             this->board.commit();
