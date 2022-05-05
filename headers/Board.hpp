@@ -21,7 +21,7 @@ public:
         PLACE_OUT_BOUNDS,
         PLACE_BAD
     };
-    explicit Board(int GRID_COL_START=50, int GRID_ROW_START=50);
+    explicit Board(int GRID_ROW_START=50, int GRID_COL_START=50);
     void drawGrid(sf::RenderWindow &window);
     int place(const Piece &p, int x, int y, int color);
 

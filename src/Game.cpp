@@ -97,25 +97,25 @@ void Game::setQuitMode()
 
 void Game::initRender(const sf::Font &font)
 {
-    sf::Text text;
-    text.setFont(font);
-    text.setFillColor(sf::Color::Green);
-    text.setPosition(sf::Vector2f(static_cast<float>(200), static_cast<float>(20)));
-    text.setString("YOU");
+    sf::Text tex;
+    tex.setFont(font);
+    tex.setFillColor(sf::Color::Green);
+    tex.setPosition(sf::Vector2f(static_cast<float>(200), static_cast<float>(20)));
+    tex.setString("YOU");
 
-    Game::text.push_back(text);
+    Game::text.push_back(tex);
 
-    text.setFillColor(sf::Color::Red);
-    text.setPosition(sf::Vector2f(static_cast<float>(900), static_cast<float>(20)));
-    text.setString("BOT");
+    tex.setFillColor(sf::Color::Red);
+    tex.setPosition(sf::Vector2f(static_cast<float>(900), static_cast<float>(20)));
+    tex.setString("BOT");
 
-    Game::text.push_back(text);
+    Game::text.push_back(tex);
 
-    text.setFillColor(sf::Color::Yellow);
-    text.setPosition(sf::Vector2f(static_cast<float>((16 - 2) * BLOCK_SIZE), static_cast<float>((16 - 4) * BLOCK_SIZE)));
-    text.setString("HOLD");
+    tex.setFillColor(sf::Color::Yellow);
+    tex.setPosition(sf::Vector2f(static_cast<float>((16 - 2) * BLOCK_SIZE), static_cast<float>((16 - 4) * BLOCK_SIZE)));
+    tex.setString("HOLD");
 
-    Game::text.push_back(text);
+    Game::text.push_back(tex);
 }
 
 void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
