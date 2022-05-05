@@ -19,7 +19,7 @@ class Piece
 public:
        Piece() = default;
        explicit Piece(const std::vector<std::pair<int, int>> &body);
-       Piece(const Piece &other);
+       explicit Piece(const Piece &other);
        Piece &operator=(const Piece &other);
        virtual std::shared_ptr<Piece> clone();
        virtual ~Piece() = default;
