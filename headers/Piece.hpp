@@ -42,8 +42,8 @@ class Powerup : public Piece
 {
 public:
        explicit Powerup(const std::vector<std::pair<int, int>> &body);
-       Powerup(const Powerup &other);
-       Powerup(const Piece &other);
+       explicit Powerup(const Powerup &other);
+       explicit Powerup(const Piece &other);
        Powerup &operator=(const Powerup &other);
        std::shared_ptr<Piece> clone() override;
        virtual ~Powerup() = default;
