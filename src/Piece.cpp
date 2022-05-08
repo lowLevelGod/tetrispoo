@@ -80,3 +80,8 @@ Powerup::Powerup(const Piece &other) : Piece(other)
 {
 
 }
+
+int Powerup::computeScore(int color)
+{
+    return basicScore * color;
+}

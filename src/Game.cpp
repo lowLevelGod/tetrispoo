@@ -3,7 +3,7 @@
 #include "../headers/Exception.hpp"
 #include <memory>
 
-Game::Game(int screenWidth, int screenHeight, const std::string &wName) : window{sf::VideoMode(screenWidth, screenHeight), wName}, currentScore{0}, highScore{0}
+Game::Game(int screenWidth, int screenHeight, const std::string &wName) : window{sf::VideoMode(screenWidth, screenHeight), wName}
 {
     Game::isReset = false;
     Game::isQuit = false;
@@ -12,8 +12,9 @@ Game::Game(int screenWidth, int screenHeight, const std::string &wName) : window
 std::ostream &operator<<(std::ostream &os, const Game &game)
 {
     // std::cout << "Current board is: " << game.board << std::endl;
-    std::cout << "Current score is: " << game.currentScore << std::endl;
-    std::cout << "Current high score is: " << game.highScore << std::endl;
+    // std::cout << "Current score is: " << game.currentScore << std::endl;
+    // std::cout << "Current high score is: " << game.highScore << std::endl;
+    std::cout << game.fastfall << std::endl;
     return os;
 }
 
@@ -23,7 +24,8 @@ void Game::run()
     sf::Font font;
     if (!font.loadFromFile("arial.ttf"))
     {
-        throw Exception("Failed to load font !");
+        std::string arg = "Failed to load font !";
+        throw IOfailed(arg);
     }
     Game::initRender(font);
 
@@ -31,12 +33,20 @@ void Game::run()
     sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
 
     srand(static_cast<unsigned int>(time(NULL)));
-    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall)};
-    std::shared_ptr<Player> robot{new Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall)};
+    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0)};
+    std::shared_ptr<Player> robot{new Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0)};
     while (this->window.isOpen())
     {
         int clockDiff = tick(clock.getElapsedTime().asMilliseconds(), lastClock);
         human->move(clockDiff, this->window);
+
+        sf::Text tex;
+        tex.setFont(font);
+        tex.setFillColor(sf::Color::Blue);
+        tex.setPosition(sf::Vector2f(static_cast<float>(410), static_cast<float>(300)));
+        tex.setString("Current score : " + std::to_string(human->currentScore));
+        Game::text[Game::text.size() - 1] = tex;
+
         if (Game::isQuit)
             return;
         if (Game::isReset)
@@ -77,8 +87,8 @@ int Game::getslowfall()
 
 void Game::reset(std::shared_ptr<Player> &human, std::shared_ptr<Player> &robot)
 {
-    std::shared_ptr<Player> humantemp = std::make_shared<Human>(Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall));
-    std::shared_ptr<Player> robottemp = std::make_shared<Robot>(Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall));
+    std::shared_ptr<Player> humantemp = std::make_shared<Human>(Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0));
+    std::shared_ptr<Player> robottemp = std::make_shared<Robot>(Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0));
 
     human = humantemp->clone();
     robot = robottemp->clone();
@@ -116,10 +126,24 @@ void Game::initRender(const sf::Font &font)
     tex.setString("HOLD");
 
     Game::text.push_back(tex);
+
+    tex.setFillColor(sf::Color::Blue);
+    tex.setPosition(sf::Vector2f(static_cast<float>(410), static_cast<float>(300)));
+    tex.setString("Current score : 0");
+    Game::text.push_back(tex);
 }
 
 void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
 {
+
+    // clear currentScore
+    for (int x = 410; x <= 650; ++x)
+    {
+        sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE, BLOCK_SIZE));
+        block.setFillColor(sf::Color::Black);
+        block.setPosition(sf::Vector2f(static_cast<float>(x), static_cast<float>(300)));
+        window.draw(block);
+    }
     // prepare area for hold
     int xc = 16, yc = 16;
     for (int col = -4; col < 4; ++col)

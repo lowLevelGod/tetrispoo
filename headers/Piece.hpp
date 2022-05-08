@@ -14,6 +14,8 @@ enum PieceNames
        RTHEL
 };
 
+const int basicScore = 5;
+
 class Piece
 {
 public:
@@ -46,6 +48,7 @@ public:
        explicit Powerup(const Piece &other);
        Powerup &operator=(const Powerup &other);
        std::shared_ptr<Piece> clone() override;
+       int computeScore(int);
        virtual ~Powerup() = default;
        //TO-DO special powerup function
 };

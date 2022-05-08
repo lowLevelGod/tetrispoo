@@ -1,14 +1,14 @@
 #include "../headers/Player.hpp"
 #include "../headers/Game.hpp"
 
-Player::Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}
+Player::Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
     p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
-Human::Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
+Human::Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -63,11 +63,23 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             this->board.undo();
         else
         {
-            std::shared_ptr<Piece> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
+            std::shared_ptr<Powerup> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
             if (castedp)
             {
                 std::cout << "Powerup" << std::endl;
-                //TO-DO activate powerup    
+                int score = castedp->computeScore(this->color);   
+                //destroy last 2 rows
+                int blocksDestroyed = 0;
+                Piece oneblock = Piece({std::make_pair<int,int>(0, 0)});
+                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
+                    for (int col = 0; col < GRID_WIDTH; ++col)
+                    {
+                        if (this->board.isFilled(row, col))
+                            ++blocksDestroyed;
+                        this->board.place(oneblock, row, col, 1);
+                        this->board.commit();
+                    }
+                this->currentScore += score * blocksDestroyed;
             }
 
             this->pieceNo = rand() % NUM_PIECES;
@@ -89,7 +101,7 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-Robot::Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed) : Player(board, pieceNo, incr, col, color, fallingspeed) {}
+Robot::Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
 
 void Robot::move(int clockDiff, sf::RenderWindow &window)
 {

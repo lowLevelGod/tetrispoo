@@ -8,8 +8,6 @@ class Game
 {
 private:
        sf::RenderWindow window;
-       int currentScore;
-       int highScore;
        static const int fastfall = 2;
        static const int slowfall = 1;
        static const int timeDelay = 200;
