@@ -71,12 +71,12 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
                 //destroy last 2 rows
                 int blocksDestroyed = 0;
                 Piece oneblock = Piece({std::make_pair<int,int>(0, 0)});
-                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
-                    for (int col = 0; col < GRID_WIDTH; ++col)
+                for (int rw = GRID_HEIGHT - 2; rw <= GRID_HEIGHT - 1; ++rw)
+                    for (int cl = 0; cl < GRID_WIDTH; ++cl)
                     {
-                        if (this->board.isFilled(row, col))
+                        if (this->board.isFilled(rw, cl))
                             ++blocksDestroyed;
-                        this->board.place(oneblock, row, col, 1);
+                        this->board.place(oneblock, rw, cl, 1);
                         this->board.commit();
                     }
                 this->currentScore += score * blocksDestroyed;
