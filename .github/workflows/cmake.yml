@@ -232,7 +232,7 @@ jobs:
         working-directory: gcc/mingw64/bin
         run: |
           cp libstdc++-6.dll $GITHUB_WORKSPACE/artifacts/bin
-          cp libgcc_s_seg-1.dll $GITHUB_WORKSPACE/artifacts/bin
+          cp libgcc_s_seh-1.dll $GITHUB_WORKSPACE/artifacts/bin
 
       - name: Copy missing dlls
         if: runner.os == 'Windows' && matrix.cxx == 'cl'
