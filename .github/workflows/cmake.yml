@@ -88,16 +88,9 @@ jobs:
           echo $GITHUB_WORKSPACE
           # mkdir $GITHUB_WORKSPACE/build
           mkdir $GITHUB_WORKSPACE/artifacts
-<<<<<<< HEAD
       - name: Install Linux Dependencies
         if: runner.os == 'Linux'
         # adapted from SFML GitHub Actions
-=======
-
-      # Common Linux dependencies
-      - name: Install Linux Dependencies
-        if: runner.os == 'Linux'
->>>>>>> 1264e885c1da5cf8a48aff051f937ff48191fa9d
         run: |
           sudo apt-get update
           sudo apt-get install \
@@ -108,15 +101,11 @@ jobs:
             libflac-dev \
             libvorbis-dev \
             libgl1-mesa-dev \
-<<<<<<< HEAD
             libegl1-mesa-dev \
             xorg \
             openbox \
             xdotool 
         # 
-=======
-            libegl1-mesa-dev
->>>>>>> 1264e885c1da5cf8a48aff051f937ff48191fa9d
 
       - name: Install clang-tidy and libc++ (Linux Clang 12)
         if: runner.os == 'Linux' && matrix.cxx == 'clang++-12'
