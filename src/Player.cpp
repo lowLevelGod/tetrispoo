@@ -153,7 +153,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
                 pwrupcount = 0;
             }
 
-            this->setBestCol(std::distance(board.getHeights().begin(), std::max_element(board.getHeights().begin(), board.getHeights().end())));
+            this->setBestCol(static_cast<int>(std::distance(board.getHeights().begin(), std::max_element(board.getHeights().begin(), board.getHeights().end()))));
             this->pieceNo = static_cast<int>(rand() % NUM_PIECES);
             this->rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
             this->col = 0;
