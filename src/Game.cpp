@@ -27,7 +27,7 @@ void Game::run()
         std::string arg = "Failed to load font !";
         throw IOfailed(arg);
     }
-    Game::initRender(font);
+    initRender(font);
 
     sf::Clock clock;
     sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
@@ -43,15 +43,17 @@ void Game::run()
         sf::Text tex;
         tex.setFont(font);
         tex.setFillColor(sf::Color::Blue);
-        tex.setPosition(sf::Vector2f(static_cast<float>(410), static_cast<float>(300)));
+        tex.setPosition(sf::Vector2f((410.f), (300.f)));
         tex.setString("Current score : " + std::to_string(human->currentScore));
-        Game::text[Game::text.size() - 1] = tex;
+        text[text.size() - 1] = tex;
 
         if (Game::isQuit)
             return;
         if (Game::isReset)
         {
-            Game::reset(human, robot);
+            human->reset();
+            robot->reset();
+            Game::isReset = false;
             continue;
         }
         robot->move(clockDiff, this->window);
@@ -75,6 +77,11 @@ int Game::tick(sf::Int32 currentClock, sf::Int32 &lastClock)
     return 0;
 }
 
+int Game::getMaxpwrupcount()
+{
+    return Game::maxpwrupcount;
+}
+
 int Game::getfastfall()
 {
     return Game::fastfall;
@@ -83,16 +90,6 @@ int Game::getfastfall()
 int Game::getslowfall()
 {
     return Game::slowfall;
-}
-
-void Game::reset(std::shared_ptr<Player> &human, std::shared_ptr<Player> &robot)
-{
-    std::shared_ptr<Player> humantemp = std::make_shared<Human>(Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0));
-    std::shared_ptr<Player> robottemp = std::make_shared<Robot>(Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0));
-
-    human = humantemp->clone();
-    robot = robottemp->clone();
-    Game::isReset = false;
 }
 
 void Game::setResetMode()
@@ -110,27 +107,27 @@ void Game::initRender(const sf::Font &font)
     sf::Text tex;
     tex.setFont(font);
     tex.setFillColor(sf::Color::Green);
-    tex.setPosition(sf::Vector2f(static_cast<float>(200), static_cast<float>(20)));
+    tex.setPosition(sf::Vector2f((200.f), (20.f)));
     tex.setString("YOU");
 
-    Game::text.push_back(tex);
+    text.push_back(tex);
 
     tex.setFillColor(sf::Color::Red);
-    tex.setPosition(sf::Vector2f(static_cast<float>(900), static_cast<float>(20)));
+    tex.setPosition(sf::Vector2f((900.f), (20.f)));
     tex.setString("BOT");
 
-    Game::text.push_back(tex);
+    text.push_back(tex);
 
     tex.setFillColor(sf::Color::Yellow);
     tex.setPosition(sf::Vector2f(static_cast<float>((16 - 2) * BLOCK_SIZE), static_cast<float>((16 - 4) * BLOCK_SIZE)));
-    tex.setString("HOLD");
+    tex.setString("CURRENT PIECE");
 
-    Game::text.push_back(tex);
+    text.push_back(tex);
 
     tex.setFillColor(sf::Color::Blue);
-    tex.setPosition(sf::Vector2f(static_cast<float>(410), static_cast<float>(300)));
+    tex.setPosition(sf::Vector2f((410.f), (300.f)));
     tex.setString("Current score : 0");
-    Game::text.push_back(tex);
+    text.push_back(tex);
 }
 
 void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
@@ -144,7 +141,7 @@ void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
         block.setPosition(sf::Vector2f(static_cast<float>(x), static_cast<float>(300)));
         window.draw(block);
     }
-    // prepare area for hold
+    // prepare area for current piece
     int xc = 16, yc = 16;
     for (int col = -4; col < 4; ++col)
         for (int row = -4; row < 4; ++row)
@@ -154,7 +151,7 @@ void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
             block.setPosition(sf::Vector2f(static_cast<float>((col + xc) * BLOCK_SIZE + 5), static_cast<float>((row + yc) * BLOCK_SIZE + 5)));
             window.draw(block);
         }
-    // draw piece for hold
+    // draw piece for current piece
     for (auto elem : holdp->getBody())
     {
         sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
@@ -162,6 +159,6 @@ void Game::drawToWindow(const std::shared_ptr<Piece> &holdp)
         block.setPosition(sf::Vector2f(static_cast<float>((elem.second + xc) * BLOCK_SIZE + 5), static_cast<float>((elem.first + yc) * BLOCK_SIZE + 5)));
         window.draw(block);
     }
-    for (auto elem : Game::text)
+    for (auto elem : text)
         this->window.draw(elem);
 }

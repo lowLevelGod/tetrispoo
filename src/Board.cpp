@@ -252,7 +252,7 @@ void Board::drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color co
     //magic numbers 5 and 10 used to center tetris block in grid cell
     sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
     block.setFillColor(color);
-    block.setPosition(sf::Vector2f(static_cast<float>(GRID_COL_START + x * BLOCK_SIZE + 5), static_cast<float>(GRID_ROW_START + y * BLOCK_SIZE + 5)));
+    block.setPosition(sf::Vector2f((GRID_COL_START + x * BLOCK_SIZE + 5.f), (GRID_ROW_START + y * BLOCK_SIZE + 5.f)));
     window.draw(block);
 }
 

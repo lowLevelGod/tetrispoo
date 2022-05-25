@@ -13,3 +13,9 @@ class IOfailed : public Exception
     public:
         IOfailed(const std::string &arg = "") : Exception(arg) {}
 };
+
+class TooManyPowerups : public Exception
+{
+    public:
+        TooManyPowerups(const std::string &arg = "") : Exception(arg) {}
+};

@@ -4,14 +4,26 @@
 #include <iostream>
 #include <time.h>
 #include <stdlib.h>
-#include "Game.hpp"
-#include "Board.hpp"
-#include "Piece.hpp"
-#include "Player.hpp"
+#include "headers/Game.hpp"
+#include "headers/Board.hpp"
+#include "headers/Piece.hpp"
+#include "headers/Player.hpp"
+#include "headers/Exception.hpp"
 
 int main()
 {
        Game game(1200, 1200);
-       game.run();
+       try
+       {
+              game.run();
+       }
+       catch (const IOfailed &exc)
+       {
+              std::cerr << exc.what() << std::endl;
+       }
+       catch (const TooManyPowerups &exc)
+       {
+              std::cerr << exc.what() << std::endl;
+       }
        return 0;
 }

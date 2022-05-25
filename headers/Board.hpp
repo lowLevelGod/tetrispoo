@@ -36,6 +36,7 @@ public:
     bool isFilled(int row, int col);
     bool isMoveValid(int incr, int col);
     const std::vector<std::vector<Piece>> &getRotations() { return rotations; }
+    const std::array<int, GRID_WIDTH> &getHeights() { return heights;}
     friend std::ostream &operator<<(std::ostream &, const Board &);
 
 private:

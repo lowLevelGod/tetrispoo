@@ -1,14 +1,16 @@
 #include "../headers/Player.hpp"
 #include "../headers/Game.hpp"
+#include "../headers/Exception.hpp"
 
-Player::Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}
+Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : board{board}, pieceNo{pieceNo}, incr{incr},
+                                                                                                                    col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{0}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
     p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
-Human::Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
+Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -66,20 +68,27 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             std::shared_ptr<Powerup> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
             if (castedp)
             {
-                std::cout << "Powerup" << std::endl;
-                int score = castedp->computeScore(this->color);   
-                //destroy last 2 rows
+                ++pwrupcount;
+                if (pwrupcount > Game::getMaxpwrupcount())
+                    throw TooManyPowerups("Too many consecutive powerups activated !");
+                // std::cout << "Powerup" << std::endl;
+                int score = castedp->computeScore(this->color);
+                // destroy last 2 rows
                 int blocksDestroyed = 0;
-                Piece oneblock = Piece({std::make_pair<int,int>(0, 0)});
-                for (int rw = GRID_HEIGHT - 2; rw <= GRID_HEIGHT - 1; ++rw)
-                    for (int cl = 0; cl < GRID_WIDTH; ++cl)
+                Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
+                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
+                    for (int col = 0; col < GRID_WIDTH; ++col)
                     {
-                        if (this->board.isFilled(rw, cl))
+                        if (this->board.isFilled(row, col))
                             ++blocksDestroyed;
-                        this->board.place(oneblock, rw, cl, 1);
+                        this->board.place(oneblock, row, col, 1);
                         this->board.commit();
                     }
                 this->currentScore += score * blocksDestroyed;
+            }
+            else
+            {
+                pwrupcount = 0;
             }
 
             this->pieceNo = rand() % NUM_PIECES;
@@ -87,10 +96,14 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             this->col = 0;
             this->incr = 0;
             this->rot = rand() % rotlen;
-            //Next piece can be powerup or normal
-            int pwrup = rand() % 2;
-            if (pwrup)
+            // Next piece can be powerup or normal
+            double pwrup = static_cast<double>(rand()) / 1000000000;
+            // std::cout << pwrup << std::endl;
+            if (pwrup < 0.15)
+            {
                 this->p = std::make_shared<Powerup>(Powerup(this->board.getRotations()[pieceNo][rot]));
+                // std::cout << "Powerup" << std::endl;
+            }
             else
                 this->p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 
@@ -101,7 +114,7 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-Robot::Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
+Robot::Robot(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
 
 void Robot::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -115,12 +128,49 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
             this->board.undo();
         else
         {
+            std::shared_ptr<Powerup> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
+            if (castedp)
+            {
+                ++pwrupcount;
+                if (pwrupcount > Game::getMaxpwrupcount())
+                    throw TooManyPowerups("Too many consecutive powerups activated !");
+                // std::cout << "Powerup" << std::endl;
+                int score = castedp->computeScore(this->color);
+                // destroy last 2 rows
+                int blocksDestroyed = 0;
+                Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
+                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
+                    for (int col = 0; col < GRID_WIDTH; ++col)
+                    {
+                        if (this->board.isFilled(row, col))
+                            ++blocksDestroyed;
+                        this->board.place(oneblock, row, col, 1);
+                        this->board.commit();
+                    }
+                this->currentScore += score * blocksDestroyed;
+            }
+            else
+            {
+                pwrupcount = 0;
+            }
+
+            this->setBestCol(std::distance(board.getHeights().begin(), std::max_element(board.getHeights().begin(), board.getHeights().end())));
             this->pieceNo = rand() % NUM_PIECES;
             this->rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
             this->col = 0;
             this->incr = 0;
             this->rot = rand() % rotlen;
-            this->p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
+            // Next piece can be powerup or normal
+            double pwrup = static_cast<double>(rand()) / 1000000000;
+            // std::cout << pwrup << std::endl;
+            if (pwrup < 0.15)
+            {
+                this->p = std::make_shared<Powerup>(Powerup(this->board.getRotations()[pieceNo][rot]));
+                // std::cout << "Powerup" << std::endl;
+            }
+            else
+                this->p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
+
             this->color = rand() % (NUM_COLORS - 1) + 1;
             this->board.clearRows();
             this->board.commit();
@@ -130,10 +180,72 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
 
 int Robot::bestMove()
 {
-    int nxtCol = rand() % 2 ? 1 : -1;
+    int nxtCol = this->bestCol - this->col;
+    if (nxtCol < 0)
+        nxtCol = -1;
+    else if (nxtCol > 0)
+        nxtCol = 1;
+    else
+        nxtCol = 0;
+
     if (board.isMoveValid(this->incr, this->col + nxtCol))
-        return nxtCol;
+    {
+        // std::cout << nxtCol << std::endl;
+        return this->col + nxtCol;
+    }
     return 0;
+}
+
+Player &Player::operator=(const Player &p)
+{
+    this->board = p.board;
+    this->pieceNo = p.pieceNo;
+    this->incr = p.incr;
+    this->col = p.incr;
+    this->rotlen = p.rotlen;
+    this->rot = p.rot;
+    this->p = p.p;
+    this->color = p.color;
+    this->fallingspeed = p.fallingspeed;
+    this->currentScore = p.currentScore;
+    this->pwrupcount = p.pwrupcount;
+    return *this;
+}
+
+Human &Human::operator=(const Human &h)
+{
+    Player::operator=(h);
+    return *this;
+}
+
+Robot &Robot::operator=(const Robot &r)
+{
+    Player::operator=(r);
+    this->bestCol = r.bestCol;
+    return *this;
+}
+
+void Human::reset()
+{
+    *this = Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), 0);
+}
+
+void Robot::reset()
+{
+    *this = Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), 0);
+}
+
+Player::Player(const Player &p) : board{p.board}, pieceNo{p.pieceNo}, incr{p.incr}, col{p.col}, color{p.color},
+                                  fallingspeed{p.fallingspeed}, currentScore{p.currentScore}, rotlen{p.rotlen}, rot{p.rot}, p{p.p}
+{
+}
+
+Human::Human(const Human &h) : Player(h)
+{
+}
+
+Robot::Robot(const Robot &r) : Player(r), bestCol{r.bestCol}
+{
 }
 
 std::shared_ptr<Player> Human::clone()
