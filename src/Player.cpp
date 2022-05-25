@@ -2,15 +2,15 @@
 #include "../headers/Game.hpp"
 #include "../headers/Exception.hpp"
 
-Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : board{board}, pieceNo{pieceNo}, incr{incr},
-                                                                                                                    col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{0}
+Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : board{board}, pieceNo{pieceNo}, incr{incr},
+                                                                                                                    col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{pwrupcount}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
     p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
-Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
+Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore, pwrupcount) {}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -114,7 +114,7 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-Robot::Robot(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore) {}
+Robot::Robot(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount, int bestCol) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore, pwrupcount), bestCol{bestCol} {}
 
 void Robot::move(int clockDiff, sf::RenderWindow &window)
 {

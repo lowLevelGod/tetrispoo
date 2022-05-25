@@ -6,7 +6,7 @@ class Player
 {
     public:
         virtual void move(int, sf::RenderWindow&) = 0;
-        Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore);
+        Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount = 0);
         virtual std::shared_ptr<Player> clone() = 0;
         virtual void reset() = 0;
         virtual ~Player() = default;
@@ -32,7 +32,7 @@ class Human : public Player
     public:
         void move(int, sf::RenderWindow&) override;
         void reset() override;
-        Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore);
+        Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount = 0);
         std::shared_ptr<Player> clone() override;
         Human(const Human&);
         Human& operator=(const Human&);
@@ -48,7 +48,7 @@ class Robot : public Player
         void reset() override;
         int bestMove();
         void setBestCol(int bestCol) { this->bestCol = bestCol;}
-        Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore);
+        Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount = 0, int bestCol = 0);
         std::shared_ptr<Player> clone() override;
         Robot(const Robot&);
         Robot& operator=(const Robot&);
