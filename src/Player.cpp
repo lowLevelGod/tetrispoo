@@ -235,7 +235,7 @@ void Robot::reset()
 }
 
 Player::Player(const Player &p) : board{p.board}, pieceNo{p.pieceNo}, incr{p.incr}, col{p.col}, color{p.color},
-                                  fallingspeed{p.fallingspeed}, currentScore{p.currentScore}, rotlen{p.rotlen}, rot{p.rot}, p{p.p}
+                                  fallingspeed{p.fallingspeed}, currentScore{p.currentScore}, rotlen{p.rotlen}, rot{p.rot}, p{p.p}, pwrupcount{p.pwrupcount}
 {
 }
 
