@@ -47,7 +47,7 @@ class Robot : public Player
         void move(int, sf::RenderWindow&) override;
         void reset() override;
         int bestMove();
-        void setBestCol(int bestCol) { this->bestCol = bestCol;}
+        void setBestCol(int bestCl) { this->bestCol = bestCl;}
         Robot(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount = 0, int bestCol = 0);
         std::shared_ptr<Player> clone() override;
         Robot(const Robot&);

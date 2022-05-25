@@ -2,8 +2,7 @@
 #include "../headers/Game.hpp"
 #include "../headers/Exception.hpp"
 
-Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : board{board}, pieceNo{pieceNo}, incr{incr},
-                                                                                                                    col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{pwrupcount}
+Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{pwrupcount}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
@@ -76,12 +75,12 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
                 // destroy last 2 rows
                 int blocksDestroyed = 0;
                 Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
-                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
-                    for (int col = 0; col < GRID_WIDTH; ++col)
+                for (int rw = GRID_HEIGHT - 2; rw <= GRID_HEIGHT - 1; ++rw)
+                    for (int cl = 0; cl < GRID_WIDTH; ++cl)
                     {
-                        if (this->board.isFilled(row, col))
+                        if (this->board.isFilled(rw, cl))
                             ++blocksDestroyed;
-                        this->board.place(oneblock, row, col, 1);
+                        this->board.place(oneblock, rw, cl, 1);
                         this->board.commit();
                     }
                 this->currentScore += score * blocksDestroyed;
@@ -139,12 +138,12 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
                 // destroy last 2 rows
                 int blocksDestroyed = 0;
                 Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
-                for (int row = GRID_HEIGHT - 2; row <= GRID_HEIGHT - 1; ++row)
-                    for (int col = 0; col < GRID_WIDTH; ++col)
+                for (int rw = GRID_HEIGHT - 2; rw <= GRID_HEIGHT - 1; ++rw)
+                    for (int cl = 0; cl < GRID_WIDTH; ++cl)
                     {
-                        if (this->board.isFilled(row, col))
+                        if (this->board.isFilled(rw, cl))
                             ++blocksDestroyed;
-                        this->board.place(oneblock, row, col, 1);
+                        this->board.place(oneblock, rw, cl, 1);
                         this->board.commit();
                     }
                 this->currentScore += score * blocksDestroyed;
@@ -155,7 +154,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
             }
 
             this->setBestCol(std::distance(board.getHeights().begin(), std::max_element(board.getHeights().begin(), board.getHeights().end())));
-            this->pieceNo = rand() % NUM_PIECES;
+            this->pieceNo = static_cast<int>(rand() % NUM_PIECES);
             this->rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
             this->col = 0;
             this->incr = 0;
@@ -196,19 +195,19 @@ int Robot::bestMove()
     return 0;
 }
 
-Player &Player::operator=(const Player &p)
+Player &Player::operator=(const Player &play)
 {
-    this->board = p.board;
-    this->pieceNo = p.pieceNo;
-    this->incr = p.incr;
-    this->col = p.incr;
-    this->rotlen = p.rotlen;
-    this->rot = p.rot;
-    this->p = p.p;
-    this->color = p.color;
-    this->fallingspeed = p.fallingspeed;
-    this->currentScore = p.currentScore;
-    this->pwrupcount = p.pwrupcount;
+    this->board = play.board;
+    this->pieceNo = play.pieceNo;
+    this->incr = play.incr;
+    this->col = play.incr;
+    this->rotlen = play.rotlen;
+    this->rot = play.rot;
+    this->p = play.p;
+    this->color = play.color;
+    this->fallingspeed = play.fallingspeed;
+    this->currentScore = play.currentScore;
+    this->pwrupcount = play.pwrupcount;
     return *this;
 }
 
