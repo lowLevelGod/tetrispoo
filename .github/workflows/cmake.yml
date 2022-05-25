@@ -82,14 +82,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+  
       - name: Prepare env
         run: |
           echo $GITHUB_WORKSPACE
+          # mkdir $GITHUB_WORKSPACE/build
           mkdir $GITHUB_WORKSPACE/artifacts
-
-      # Common Linux dependencies
       - name: Install Linux Dependencies
         if: runner.os == 'Linux'
+        # adapted from SFML GitHub Actions
         run: |
           sudo apt-get update
           sudo apt-get install \
@@ -100,7 +101,11 @@ jobs:
             libflac-dev \
             libvorbis-dev \
             libgl1-mesa-dev \
-            libegl1-mesa-dev
+            libegl1-mesa-dev \
+            xorg \
+            openbox \
+            xdotool 
+        # 
 
       - name: Install clang-tidy and libc++ (Linux Clang 12)
         if: runner.os == 'Linux' && matrix.cxx == 'clang++-12'
@@ -224,8 +229,18 @@ jobs:
       - name: Copy stdlib (MinGW)
         if: runner.os == 'Windows' && matrix.cxx == 'g++'
         # static linking might not work with MinGW, might be easier this way
+        working-directory: gcc/mingw64/bin
         run: |
-          cp gcc/mingw64/bin/libstdc++-6.dll $GITHUB_WORKSPACE/artifacts/bin
+          cp libstdc++-6.dll $GITHUB_WORKSPACE/artifacts/bin
+          cp libgcc_s_seh-1.dll $GITHUB_WORKSPACE/artifacts/bin
+
+      - name: Copy missing dlls
+        if: runner.os == 'Windows' && matrix.cxx == 'cl'
+        run: |
+          cp $(where ucrtbased.dll) artifacts/bin/
+          cp $(where VCRUNTIME140_1D.dll) artifacts/bin/
+          cp $(where MSVCP140D.dll) artifacts/bin/
+          cp $(where VCRUNTIME140D.dll) artifacts/bin/
 
       - name: Cppcheck
         if: runner.os == 'Linux' && matrix.cxx == 'clang++-11'
