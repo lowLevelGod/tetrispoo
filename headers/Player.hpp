@@ -18,7 +18,6 @@ class Player
         int col;
         int color;
         int fallingspeed;
-        int currentScore;
         int rotlen;
         int rot;
         std::shared_ptr<Piece> p;
@@ -38,6 +37,7 @@ class Human : public Player
         Human(const Human&);
         Human& operator=(const Human&);
         ~Human() = default;
+        const Score<int>& getCurrentScore() const { return currentScore;}
 };
 
 class Robot : public Player

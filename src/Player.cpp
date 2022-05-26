@@ -206,7 +206,7 @@ Player &Player::operator=(const Player &play)
     this->p = play.p;
     this->color = play.color;
     this->fallingspeed = play.fallingspeed;
-    this->currentScore = play.currentScore;
+    // this->currentScore = play.currentScore;
     this->pwrupcount = play.pwrupcount;
     return *this;
 }

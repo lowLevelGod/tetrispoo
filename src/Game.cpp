@@ -50,7 +50,7 @@ void Game::run()
         tex.setFont(font);
         tex.setFillColor(sf::Color::Blue);
         tex.setPosition(sf::Vector2f((410.f), (300.f)));
-        tex.setString("Current score : " + std::to_string(human->currentScore));
+        tex.setString("Current score : " + std::to_string(std::dynamic_pointer_cast<Human>(human)->getCurrentScore().getScore()));
         text[text.size() - 1] = tex;
 
         if (Game::isQuit)
