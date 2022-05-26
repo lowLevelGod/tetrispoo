@@ -134,7 +134,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
                 if (pwrupcount > Game::getMaxpwrupcount())
                     throw TooManyPowerups("Too many consecutive powerups activated !");
                 // std::cout << "Powerup" << std::endl;
-                int score = castedp->computeScore(static_cast<float>(this->color));
+                float score = castedp->computeScore(static_cast<float>(this->color));
                 // destroy last 2 rows
                 int blocksDestroyed = 0;
                 Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
@@ -146,7 +146,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
                         this->board.place(oneblock, rw, cl, 1);
                         this->board.commit();
                     }
-                this->currentScore += score * blocksDestroyed;
+                this->currentScore += score * static_cast<float>(blocksDestroyed);
             }
             else
             {
