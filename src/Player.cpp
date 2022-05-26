@@ -2,14 +2,14 @@
 #include "../headers/Game.hpp"
 #include "../headers/Exception.hpp"
 
-Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}, currentScore{currentScore}, pwrupcount{pwrupcount}
+Player::Player(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int pwrupcount) : board{board}, pieceNo{pieceNo}, incr{incr}, col{col}, color{color}, fallingspeed{fallingspeed}, pwrupcount{pwrupcount}
 {
     rotlen = static_cast<int>(this->board.getRotations()[pieceNo].size());
     rot = rand() % rotlen;
     p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
-Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore, pwrupcount) {}
+Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<int> currentScore, int pwrupcount) : Player(board, pieceNo, incr, col, color, fallingspeed, pwrupcount), currentScore{currentScore} {}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -43,10 +43,10 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
                 fallingspeed = Game::getfastfall();
                 break;
             case sf::Keyboard::R:
-                Game::setResetMode();
+                Game::getGame().setResetMode();
                 return;
             case sf::Keyboard::Q:
-                Game::setQuitMode();
+                Game::getGame().setQuitMode();
                 return;
             default:
                 break;
@@ -113,7 +113,7 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
 }
 
-Robot::Robot(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, int currentScore, int pwrupcount, int bestCol) : Player(board, pieceNo, incr, col, color, fallingspeed, currentScore, pwrupcount), bestCol{bestCol} {}
+Robot::Robot(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<float> currentScore, int pwrupcount, int bestCol) : Player(board, pieceNo, incr, col, color, fallingspeed, pwrupcount), currentScore{currentScore}, bestCol{bestCol} {}
 
 void Robot::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -134,7 +134,7 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
                 if (pwrupcount > Game::getMaxpwrupcount())
                     throw TooManyPowerups("Too many consecutive powerups activated !");
                 // std::cout << "Powerup" << std::endl;
-                int score = castedp->computeScore(this->color);
+                int score = castedp->computeScore(static_cast<float>(this->color));
                 // destroy last 2 rows
                 int blocksDestroyed = 0;
                 Piece oneblock = Piece({std::make_pair<int, int>(0, 0)});
@@ -226,24 +226,24 @@ Robot &Robot::operator=(const Robot &r)
 
 void Human::reset()
 {
-    *this = Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), 0);
+    *this = Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), Score<int>(0));
 }
 
 void Robot::reset()
 {
-    *this = Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), 0);
+    *this = Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), Score<float>(0.f));
 }
 
 Player::Player(const Player &p) : board{p.board}, pieceNo{p.pieceNo}, incr{p.incr}, col{p.col}, color{p.color},
-                                  fallingspeed{p.fallingspeed}, currentScore{p.currentScore}, rotlen{p.rotlen}, rot{p.rot}, p{p.p}, pwrupcount{p.pwrupcount}
+                                  fallingspeed{p.fallingspeed}, rotlen{p.rotlen}, rot{p.rot}, p{p.p}, pwrupcount{p.pwrupcount}
 {
 }
 
-Human::Human(const Human &h) : Player(h)
+Human::Human(const Human &h) : Player(h), currentScore{h.currentScore}
 {
 }
 
-Robot::Robot(const Robot &r) : Player(r), bestCol{r.bestCol}
+Robot::Robot(const Robot &r) : Player(r), currentScore{r.currentScore}, bestCol{r.bestCol}
 {
 }
 

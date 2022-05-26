@@ -9,6 +9,12 @@ Game::Game(int screenWidth, int screenHeight, const std::string &wName) : window
     Game::isQuit = false;
 }
 
+Game& Game::getGame()
+{
+    static Game game(1200, 1200);
+    return game;
+}
+
 std::ostream &operator<<(std::ostream &os, const Game &game)
 {
     // std::cout << "Current board is: " << game.board << std::endl;
@@ -33,8 +39,8 @@ void Game::run()
     sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
 
     srand(static_cast<unsigned int>(time(NULL)));
-    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0)};
-    std::shared_ptr<Player> robot{new Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, 0)};
+    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, Score<int>(0))};
+    std::shared_ptr<Player> robot{new Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall,Score<float>(0.f))};
     while (this->window.isOpen())
     {
         int clockDiff = tick(clock.getElapsedTime().asMilliseconds(), lastClock);

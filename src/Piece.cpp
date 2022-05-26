@@ -68,20 +68,75 @@ std::shared_ptr<Piece> Powerup::clone()
     return std::make_shared<Powerup>(*this);
 }
 
-Powerup::Powerup(const std::vector<std::pair<int, int>> &body) : Piece(body){}
+Powerup::Powerup(const std::vector<std::pair<int, int>> &body) : Piece(body) {}
 Powerup::Powerup(const Powerup &other) : Piece(other) {}
-Powerup &Powerup::operator=(const Powerup &other) 
+Powerup &Powerup::operator=(const Powerup &other)
 {
     Piece::operator=(other);
-    
+
     return *this;
 }
 Powerup::Powerup(const Piece &other) : Piece(other)
 {
-
 }
 
-int Powerup::computeScore(int color)
+std::vector<Piece> PieceFactory::square()
 {
-    return basicScore * color;
+    return {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(0, 1), std::make_pair(-1, 1)})};
+}
+
+std::vector<Piece> PieceFactory::ldog()
+{
+    return {Piece({std::make_pair(-1, 0), std::make_pair(-1, 1),
+                   std::make_pair(0, 1), std::make_pair(0, 2)}),
+            Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(-1, 1), std::make_pair(-2, 1)})};
+}
+std::vector<Piece> PieceFactory::rdog()
+{
+    return {Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(-1, 1), std::make_pair(-1, 2)}),
+            Piece({std::make_pair(-1, 0), std::make_pair(-2, 0),
+                   std::make_pair(0, 1), std::make_pair(-1, 1)})};
+}
+std::vector<Piece> PieceFactory::stick()
+{
+    return {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(-2, 0), std::make_pair(-3, 0)}),
+            Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(0, 2), std::make_pair(0, 3)})};
+}
+std::vector<Piece> PieceFactory::thet()
+{
+    return {Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(0, 2), std::make_pair(-1, 1)}),
+            Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(-2, 0), std::make_pair(-1, 1)}),
+            Piece({std::make_pair(0, 1), std::make_pair(-1, 0),
+                   std::make_pair(-1, 1), std::make_pair(-1, 2)}),
+            Piece({std::make_pair(0, 1), std::make_pair(-1, 1),
+                   std::make_pair(-2, 1), std::make_pair(-1, 0)})};
+}
+std::vector<Piece> PieceFactory::lthel()
+{
+    return {Piece({std::make_pair(0, 1), std::make_pair(-1, 1),
+                   std::make_pair(-2, 1), std::make_pair(-2, 0)}),
+            Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(0, 2), std::make_pair(-1, 2)}),
+            Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(-1, 1), std::make_pair(-2, 1)}),
+            Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(-1, 1), std::make_pair(-1, 2)})};
+}
+std::vector<Piece> PieceFactory::rthel()
+{
+    return {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(-2, 0), std::make_pair(-2, 1)}),
+            Piece({std::make_pair(0, 2), std::make_pair(-1, 0),
+                   std::make_pair(-1, 1), std::make_pair(-1, 2)}),
+            Piece({std::make_pair(0, 0), std::make_pair(0, 1),
+                   std::make_pair(-1, 0), std::make_pair(-2, 0)}),
+            Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
+                   std::make_pair(0, 1), std::make_pair(0, 2)})};
 }

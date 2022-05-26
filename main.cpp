@@ -12,7 +12,7 @@
 
 int main()
 {
-       Game game(1200, 1200);
+       auto& game = Game::getGame();
        try
        {
               game.run();

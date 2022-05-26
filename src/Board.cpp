@@ -38,10 +38,10 @@ std::ostream &operator<<(std::ostream &os, const Board &b)
 int Board::movePieceDown(const Piece &p, int col, int &incr, int color, int clockAmount)
 {
     int limit = abs(dropHeight(p, col) - incr);
-    //std::cout << incr << " " << limit << std::endl;
+    // std::cout << incr << " " << limit << std::endl;
     int amountAdded = std::min(clockAmount, limit);
     int status = this->place(p, BOARD_START + incr + amountAdded, col, color);
-    //std::cout << status << std::endl;
+    // std::cout << status << std::endl;
     if (status == this->PLACE_OK)
     {
         incr += amountAdded;
@@ -104,7 +104,7 @@ int Board::dropHeight(const Piece &p, int col)
         res = std::min(heights[col + elem.second] - elem.first, res);
         // std::cout << heights[col + elem.second]  << " " << elem.first << std::endl;
     }
-    //std::cout << res << " " << p << std::endl;
+    // std::cout << res << " " << p << std::endl;
     return res;
 }
 
@@ -149,7 +149,8 @@ int Board::place(const Piece &p, int x, int y, int color)
             res = PLACE_ROW_FILLED;
             break;
         }*/
-    if (std::any_of(widths.begin(), widths.end(), [](int row) { return row == GRID_WIDTH;}))
+    if (std::any_of(widths.begin(), widths.end(), [](int row)
+                    { return row == GRID_WIDTH; }))
         res = PLACE_ROW_FILLED;
     committed = false;
     return res;
@@ -185,62 +186,25 @@ void Board::drawGrid(sf::RenderWindow &window)
 
 void Board::computeRotations()
 {
-    rotations[SQUARE] = {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                                std::make_pair(0, 1), std::make_pair(-1, 1)})};
-
-    rotations[LDOG] = {Piece({std::make_pair(-1, 0), std::make_pair(-1, 1),
-                              std::make_pair(0, 1), std::make_pair(0, 2)}),
-                       Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                              std::make_pair(-1, 1), std::make_pair(-2, 1)})};
-
-    rotations[RDOG] = {Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                              std::make_pair(-1, 1), std::make_pair(-1, 2)}),
-                       Piece({std::make_pair(-1, 0), std::make_pair(-2, 0),
-                              std::make_pair(0, 1), std::make_pair(-1, 1)})};
-
-    rotations[STICK] = {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                               std::make_pair(-2, 0), std::make_pair(-3, 0)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                               std::make_pair(0, 2), std::make_pair(0, 3)})};
-
-    rotations[THET] = {Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                              std::make_pair(0, 2), std::make_pair(-1, 1)}),
-                       Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                              std::make_pair(-2, 0), std::make_pair(-1, 1)}),
-                       Piece({std::make_pair(0, 1), std::make_pair(-1, 0),
-                              std::make_pair(-1, 1), std::make_pair(-1, 2)}),
-                       Piece({std::make_pair(0, 1), std::make_pair(-1, 1),
-                              std::make_pair(-2, 1), std::make_pair(-1, 0)})};
-
-    rotations[LTHEL] = {Piece({std::make_pair(0, 1), std::make_pair(-1, 1),
-                               std::make_pair(-2, 1), std::make_pair(-2, 0)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                               std::make_pair(0, 2), std::make_pair(-1, 2)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                               std::make_pair(-1, 1), std::make_pair(-2, 1)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                               std::make_pair(-1, 1), std::make_pair(-1, 2)})};
-
-    rotations[RTHEL] = {Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                               std::make_pair(-2, 0), std::make_pair(-2, 1)}),
-                        Piece({std::make_pair(0, 2), std::make_pair(-1, 0),
-                               std::make_pair(-1, 1), std::make_pair(-1, 2)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(0, 1),
-                               std::make_pair(-1, 0), std::make_pair(-2, 0)}),
-                        Piece({std::make_pair(0, 0), std::make_pair(-1, 0),
-                               std::make_pair(0, 1), std::make_pair(0, 2)})};
+    rotations[SQUARE] = PieceFactory::square();
+    rotations[LDOG] = PieceFactory::ldog();
+    rotations[RDOG] = PieceFactory::rdog();
+    rotations[STICK] = PieceFactory::stick();
+    rotations[THET] = PieceFactory::thet();
+    rotations[LTHEL] = PieceFactory::lthel();
+    rotations[RTHEL] = PieceFactory::rthel();
 }
 
 Board::Board(int GRID_ROW_START, int GRID_COL_START) : grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
-                 rotations(std::vector<std::vector<Piece>>(NUM_PIECES)),
-                 widths(std::array<int, GRID_HEIGHT>{}),
-                 copy_widths(std::array<int, GRID_HEIGHT>{}),
-                 copy_heights(std::array<int, GRID_WIDTH>{}),
-                 copy_grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
-                 colors({sf::Color::Black, sf::Color::Green, sf::Color::Red, sf::Color::Cyan, sf::Color::Magenta, sf::Color::Yellow}),
-                 committed(true),
-                 GRID_ROW_START(GRID_ROW_START),
-                 GRID_COL_START(GRID_COL_START)
+                                                       rotations(std::vector<std::vector<Piece>>(NUM_PIECES)),
+                                                       widths(std::array<int, GRID_HEIGHT>{}),
+                                                       copy_widths(std::array<int, GRID_HEIGHT>{}),
+                                                       copy_heights(std::array<int, GRID_WIDTH>{}),
+                                                       copy_grid(std::array<std::array<int, GRID_WIDTH>, GRID_HEIGHT>{}),
+                                                       colors({sf::Color::Black, sf::Color::Green, sf::Color::Red, sf::Color::Cyan, sf::Color::Magenta, sf::Color::Yellow}),
+                                                       committed(true),
+                                                       GRID_ROW_START(GRID_ROW_START),
+                                                       GRID_COL_START(GRID_COL_START)
 {
     computeRotations();
     heights = std::array<int, GRID_WIDTH>{};
@@ -249,7 +213,7 @@ Board::Board(int GRID_ROW_START, int GRID_COL_START) : grid(std::array<std::arra
 
 void Board::drawBlock(int x, int y, sf::RenderWindow &window, const sf::Color color)
 {
-    //magic numbers 5 and 10 used to center tetris block in grid cell
+    // magic numbers 5 and 10 used to center tetris block in grid cell
     sf::RectangleShape block(sf::Vector2f(BLOCK_SIZE - 10, BLOCK_SIZE - 10));
     block.setFillColor(color);
     block.setPosition(sf::Vector2f((GRID_COL_START + x * BLOCK_SIZE + 5.f), (GRID_ROW_START + y * BLOCK_SIZE + 5.f)));

@@ -48,7 +48,26 @@ public:
        explicit Powerup(const Piece &other);
        Powerup &operator=(const Powerup &other);
        std::shared_ptr<Piece> clone() override;
-       int computeScore(int);
+       template <typename T>
+       T computeScore(T);
        virtual ~Powerup() = default;
-       //TO-DO special powerup function
+       // TO-DO special powerup function
+};
+
+template <typename T>
+T Powerup::computeScore(T color)
+{
+       return basicScore * color;
+}
+
+class PieceFactory
+{
+public:
+       static std::vector<Piece> square();
+       static std::vector<Piece> ldog();
+       static std::vector<Piece>  rdog();
+       static std::vector<Piece>  stick();
+       static std::vector<Piece>  thet();
+       static std::vector<Piece>  lthel();
+       static std::vector<Piece>  rthel();
 };
