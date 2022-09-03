@@ -1,9 +1,12 @@
 #pragma once
 #include "Board.hpp"
 #include "Score.hpp"
+#include <queue>
+
 class Player
 {
     public:
+        void solveCollisions();
         virtual void move(int, sf::RenderWindow&) = 0;
         Player(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, int pwrupcount = 0);
         virtual std::shared_ptr<Player> clone() = 0;
@@ -29,10 +32,11 @@ class Human : public Player
 {   
     private:
         Score<int> currentScore;
+        std::queue<int> keysPressed;
     public:
         void move(int, sf::RenderWindow&) override;
         void reset() override;
-        Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<int> currentScore, int pwrupcount = 0);
+        Human(const Board& board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<int> currentScore, const std::queue<int>& keysPressed, int pwrupcount = 0);
         std::shared_ptr<Player> clone() override;
         Human(const Human&);
         Human& operator=(const Human&);

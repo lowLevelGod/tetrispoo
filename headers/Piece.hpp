@@ -27,8 +27,8 @@ public:
        virtual ~Piece() = default;
 
        const std::vector<std::pair<int, int>> &getBody() const { return body; }
-       int getWidth() { return width; }
-       int getHeight() { return height; }
+       int getWidth() const { return width; }
+       int getHeight() const { return height; }
        const std::vector<std::pair<int, int>> &getSkirt() const { return skirt; }
        friend std::ostream &operator<<(std::ostream &os, const Piece &a);
        friend bool operator==(const Piece &a, const Piece &b);

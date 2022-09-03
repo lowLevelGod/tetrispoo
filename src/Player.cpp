@@ -9,7 +9,23 @@ Player::Player(const Board &board, int pieceNo, int incr, int col, int color, in
     p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
 }
 
-Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<int> currentScore, int pwrupcount) : Player(board, pieceNo, incr, col, color, fallingspeed, pwrupcount), currentScore{currentScore} {}
+Human::Human(const Board &board, int pieceNo, int incr, int col, int color, int fallingspeed, Score<int> currentScore, const std::queue<int>& keysPressed, int pwrupcount) : 
+Player(board, pieceNo, incr, col, color, fallingspeed, pwrupcount), currentScore{currentScore}, keysPressed{keysPressed} {}
+
+void Player::solveCollisions()
+{
+    while (col + p->getWidth() > GRID_WIDTH)
+                --col;
+    // std::cout << "Row: " << incr << " " << "Col: " << col << std::endl;
+    while (this->board.isFilled(incr, col + p->getWidth() - 1))
+    {
+        --col;
+    }
+    while (col < 0)
+        ++col;
+    while (this->board.isFilled(incr, col))
+        ++col;
+}
 
 void Human::move(int clockDiff, sf::RenderWindow &window)
 {
@@ -26,21 +42,16 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             switch (event.key.code)
             {
             case sf::Keyboard::Left:
-                if (col > 0 && !this->board.isFilled(incr, col - 1))
-                    col -= 1;
+                keysPressed.push(sf::Keyboard::Left);
                 break;
             case sf::Keyboard::Right:
-                if (col + p->getWidth() < GRID_WIDTH && !this->board.isFilled(incr, col + p->getWidth() + 1))
-                    col += 1;
+                keysPressed.push(sf::Keyboard::Right);
                 break;
             case sf::Keyboard::Up:
-                rot = (rot + 1) % rotlen;
-                p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
-                while (col + p->getWidth() > GRID_WIDTH)
-                    col -= 1;
+                keysPressed.push(sf::Keyboard::Up);
                 break;
             case sf::Keyboard::Down:
-                fallingspeed = Game::getfastfall();
+                keysPressed.push(sf::Keyboard::Down);
                 break;
             case sf::Keyboard::R:
                 Game::getGame().setResetMode();
@@ -57,12 +68,41 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
     }
     if (clockDiff)
     {
+
+        while (!keysPressed.empty())
+        {
+            int key = keysPressed.front();
+            keysPressed.pop();
+
+            switch (key)
+            {
+            case sf::Keyboard::Left:
+                col -= 1;
+                break;
+            case sf::Keyboard::Right:
+                col += 1;
+                break;
+            case sf::Keyboard::Up:
+                rot = (rot + 1) % rotlen;
+                p = std::make_shared<Piece>(this->board.getRotations()[pieceNo][rot]);
+                break;
+            case sf::Keyboard::Down:
+                fallingspeed = Game::getfastfall();
+                break;
+            default:
+                break;
+            }
+
+        }
+
+        solveCollisions();
+
         int status = this->board.movePieceDown(*p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
         if (!status)
             this->board.undo();
-        else
+        if (status)
         {
             std::shared_ptr<Powerup> castedp = std::dynamic_pointer_cast<Powerup>(this->p);
             if (castedp)
@@ -109,6 +149,17 @@ void Human::move(int clockDiff, sf::RenderWindow &window)
             this->color = rand() % (NUM_COLORS - 1) + 1;
             this->board.clearRows();
             this->board.commit();
+
+            // for (int i = 0; i < GRID_HEIGHT; ++i)
+            // {
+            //     for (int j = 0; j < GRID_WIDTH; ++j)
+            //     {
+            //         std::cout << this->board.isFilled(i, j) << " ";
+            //     }
+
+            //     std::cout << std::endl;
+            // }
+            // std::cout << std::endl;
         }
     }
 }
@@ -120,6 +171,9 @@ void Robot::move(int clockDiff, sf::RenderWindow &window)
     if (clockDiff)
     {
         col = bestMove();
+
+        solveCollisions();
+
         int status = this->board.movePieceDown(*p, col, incr, color, clockDiff * fallingspeed);
         this->board.drawGrid(window);
         fallingspeed = Game::getslowfall();
@@ -226,7 +280,7 @@ Robot &Robot::operator=(const Robot &r)
 
 void Human::reset()
 {
-    *this = Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), Score<int>(0));
+    *this = Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::getslowfall(), Score<int>(0), std::queue<int>());
 }
 
 void Robot::reset()
@@ -239,7 +293,7 @@ Player::Player(const Player &p) : board{p.board}, pieceNo{p.pieceNo}, incr{p.inc
 {
 }
 
-Human::Human(const Human &h) : Player(h), currentScore{h.currentScore}
+Human::Human(const Human &h) : Player(h), currentScore{h.currentScore}, keysPressed{h.keysPressed}
 {
 }
 

@@ -39,7 +39,7 @@ void Game::run()
     sf::Int32 lastClock = clock.getElapsedTime().asMilliseconds();
 
     srand(static_cast<unsigned int>(time(NULL)));
-    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, Score<int>(0))};
+    std::shared_ptr<Player> human{new Human(Board{70, 50}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall, Score<int>(0), std::queue<int>())};
     std::shared_ptr<Player> robot{new Robot(Board{70, 50 + 700}, rand() % NUM_PIECES, 0, 0, rand() % (NUM_COLORS - 1) + 1, Game::slowfall,Score<float>(0.f))};
     while (this->window.isOpen())
     {

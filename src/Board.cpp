@@ -42,14 +42,20 @@ int Board::movePieceDown(const Piece &p, int col, int &incr, int color, int cloc
     int amountAdded = std::min(clockAmount, limit);
     int status = this->place(p, BOARD_START + incr + amountAdded, col, color);
     // std::cout << status << std::endl;
-    if (status == this->PLACE_OK)
+    if (limit != 0 && status == this->PLACE_OK)
     {
         incr += amountAdded;
     }
     else
     {
-        this->undo();
-        this->place(p, BOARD_START + incr, col, color);
+        while (status)
+        {
+            this->undo();
+            status = this->place(p, BOARD_START + incr + amountAdded, col, color);
+            --amountAdded;
+            if (amountAdded < 0)
+                break;
+        }
         return 1; // piece landed
     }
     return 0;
@@ -101,7 +107,7 @@ int Board::dropHeight(const Piece &p, int col)
     int res = GRID_HEIGHT - 1;
     for (auto elem : p.getSkirt())
     {
-        res = std::min(heights[col + elem.second] - elem.first, res);
+        res = std::min(heights[col + elem.second] - elem.first - 1, res);
         // std::cout << heights[col + elem.second]  << " " << elem.first << std::endl;
     }
     // std::cout << res << " " << p << std::endl;

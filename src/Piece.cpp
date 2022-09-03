@@ -16,10 +16,10 @@ Piece::Piece(const std::vector<std::pair<int, int>> &body) : body{body}
     int maxx = minx;
     for (auto elem : body)
     {
-        miny = std::min(minx, elem.first);
-        maxy = std::max(minx, elem.first);
+        miny = std::min(miny, elem.first);
+        maxy = std::max(maxy, elem.first);
         minx = std::min(minx, elem.second);
-        maxx = std::max(minx, elem.second);
+        maxx = std::max(maxx, elem.second);
     }
     width = maxx - minx + 1;
     height = maxy - miny + 1;
