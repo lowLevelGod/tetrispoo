@@ -29,15 +29,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
-            c: clang-11
-            cxx: clang++-11
-            name: Ubuntu 20.04 Clang 11
-            # The flag CMAKE_EXPORT_COMPILE_COMMANDS generates compile_commands.json
-            # which is used by cppcheck and clang-tidy
-            cmake_flags: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_SHARED_LIBS=FALSE
-            # This env runs cppcheck and sanitizers
-
+        
           - os: ubuntu-20.04
             c: clang-12
             cxx: clang++-12
